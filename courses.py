@@ -3,6 +3,7 @@ import os
 import re
 import json
 import time
+import subprocess
 
 
 def clean_name(name):
@@ -35,46 +36,73 @@ with open("courses.json", "r", encoding="utf-8") as f:
 errors = 0
 downloaded = 0
 
+
 for item in data["items"]:
+    try:
+        course_name = clean_name(item["name"])
+        page = item["page"]
+        print('Download Started')
+        page_folder = os.path.join(
+            "my courses",
+            course_name,
+            clean_name(page["name"])
+        )
 
-    course_name = clean_name(item["name"])
-    page = item["page"]
+        for video in page["datas"]:
+            try:
+                if video.get("saved", False):
+                    continue
 
-    page_folder = os.path.join(
-        "my courses",
-        course_name,
-        clean_name(page["name"])
-    )
+                video_folder = os.path.join(
+                    page_folder,
+                    clean_name(video["name"])
+                )
 
-    for video in page["datas"]:
+                download_file(
+                    video["video"],
+                    video_folder,
+                    video["name"],
+                    ".mp4"
+                )
 
-        if video.get("saved", False):
-            continue
+                download_file(
+                    video["pdf"],
+                    video_folder,
+                    video["name"],
+                    ".pdf"
+                )
 
-        try:
+                video["saved"] = True
+                downloaded += 1
 
-            video_folder = os.path.join(
-                page_folder,
-                clean_name(video["name"])
-            )
+                with open("courses.json", "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
 
-            download_file(video["video"], video_folder, video["name"], ".mp4")
+                time.sleep(2)
 
+            except Exception as e:
+                errors += 1
+                print("Video Error:", e)
+                continue
 
-            download_file(video["pdf"], video_folder, video["name"], ".pdf")
-
-            video["saved"] = True
-            downloaded += 1
-
-            with open("courses.json", "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2, ensure_ascii=False)
-
-            time.sleep(2)
-
-        except Exception as e:
-            errors += 1
-            print("Error:", e)
+    except Exception as e:
+        errors += 1
+        print("Item Error:", e)
+        continue
 
 print("\nCompleted")
 print("Downloaded:", downloaded)
 print("Errors:", errors)
+
+
+
+
+
+
+
+
+
+
+
+
+
