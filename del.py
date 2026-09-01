@@ -9,6 +9,9 @@ def delete_ts_files():
         if not os.path.isdir(folder_path):
             continue
 
+        if not os.path.exists(os.path.join(folder_path, "output.mp4")):
+            continue
+
         for file in os.listdir(folder_path):
             if file.lower().endswith(".ts"):
                 os.remove(os.path.join(folder_path, file))
