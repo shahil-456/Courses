@@ -45,55 +45,62 @@ import subprocess
 
 
 def download_1080_ts():
+
     current_dir = os.path.join(os.getcwd(), "videos")
 
     for folder in os.listdir(current_dir):
-        folder_path = os.path.join(current_dir, folder)
 
-        if not os.path.isdir(folder_path):
-            continue
+        try:
+            folder_path = os.path.join(current_dir, folder)
 
-        json_path = os.path.join(folder_path, "ts.json")
-        print('downloading')
-        if not os.path.exists(json_path):
-            continue
-        
-        with open(json_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+            if not os.path.isdir(folder_path):
+                continue
 
-        if "saved" in data:
-            continue
-
-        # Get link from ts.json
-        link = data["link"]
-
-        # Replace quality with 1080
-        link = link.replace("/240_", "/1080_") \
-                   .replace("/480_", "/1080_") \
-                   .replace("/720_", "/1080_")
-
-        # Download 1080_00000.ts, 1080_00001.ts, ...
-        index = 0
-
-        while True:
-            url = link.replace("1080_00000.ts", f"1080_{index:05d}.ts")
-            output = os.path.join(folder_path, f"1080_{index:05d}.ts")
-            time.sleep(0.3)
-            response = requests.get(url)
-
-            if response.status_code != 200:
-                break
-
-            with open(output, "wb") as f:
-                f.write(response.content)
-
-            print(f"{folder}: 1080_{index:05d}.ts")
-            index += 1
+            json_path = os.path.join(folder_path, "ts.json")
+            print('downloading')
+            if not os.path.exists(json_path):
+                continue
             
-        data["saved"] = True
+            with open(json_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
 
-        with open(json_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4)
+            if "saved" in data:
+                continue
+
+            # Get link from ts.json
+            link = data["link"]
+
+            # Replace quality with 1080
+            link = (link.replace("/240_", "/1080_")
+                        .replace("/480_", "/1080_")
+                        .replace("/720_", "/1080_"))
+
+            # Download 1080_00000.ts, 1080_00001.ts, ...
+            index = 0
+
+            while True:
+                url = link.replace("1080_00000.ts", f"1080_{index:05d}.ts")
+                output = os.path.join(folder_path, f"1080_{index:05d}.ts")
+                time.sleep(0.3)
+                response = requests.get(url)
+
+                if response.status_code != 200:
+                    break
+
+                with open(output, "wb") as f:
+                    f.write(response.content)
+
+                print(f"{folder}: 1080_{index:05d}.ts")
+                index += 1
+
+            data["saved"] = True
+
+            with open(json_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=4)
+
+        except Exception as e:
+            print(f"Error in {folder}: {e}")
+            continue
 
 # after download all ts files add key saved :true inside ts.json/
 
