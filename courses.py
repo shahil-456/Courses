@@ -1,29 +1,29 @@
-import json
-import re
-import os
 import requests
+import os
+import re
+import json
 import time
+import subprocess
 
-def extract_ts_links(filename="ts_links.yaml"):
-    with open(filename, "r", encoding="utf-8") as f:
-        lines = f.readlines()
+# def extract_ts_links(filename="ts_links.yaml"):
+#     with open(filename, "r", encoding="utf-8") as f:
+#         lines = f.readlines()
 
-    count = 1
+#     count = 1
 
-    for line in lines:
-        if "1080_00001" in line:
-            ts_url = line.strip()
+#     for line in lines:
+#         if "1080_00001" in line:
+#             ts_url = line.strip()
 
-            with open(f"ex-{count}.json", "w", encoding="utf-8") as f:
-                json.dump({
-                    "name": f"ex-{count}",
-                    "link": ts_url
-                }, f, indent=4)
+#             with open(f"ex-{count}.json", "w", encoding="utf-8") as f:
+#                 json.dump({
+#                     "name": f"ex-{count}",
+#                     "link": ts_url
+#                 }, f, indent=4)
 
-            count += 1
+#             count += 1
 
 # extract_ts_links()
-
 
 
 # current_dir = os.getcwd()
@@ -45,7 +45,7 @@ def extract_ts_links(filename="ts_links.yaml"):
 
 
 def download_1080_ts():
-    current_dir = os.getcwd()
+    current_dir = os.path.join(os.getcwd(), "videos")
 
     for folder in os.listdir(current_dir):
         folder_path = os.path.join(current_dir, folder)
@@ -54,7 +54,7 @@ def download_1080_ts():
             continue
 
         json_path = os.path.join(folder_path, "ts.json")
-        print('hhhh')
+        print('downloading')
         if not os.path.exists(json_path):
             continue
         
@@ -78,7 +78,7 @@ def download_1080_ts():
         while True:
             url = link.replace("1080_00000.ts", f"1080_{index:05d}.ts")
             output = os.path.join(folder_path, f"1080_{index:05d}.ts")
-            time.sleep(0.5)
+            time.sleep(0.3)
             response = requests.get(url)
 
             if response.status_code != 200:
@@ -89,11 +89,11 @@ def download_1080_ts():
 
             print(f"{folder}: 1080_{index:05d}.ts")
             index += 1
+            
+        data["saved"] = True
 
-            data["saved"] = True
-
-            with open(json_path, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=4)
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)
 
 # after download all ts files add key saved :true inside ts.json/
 
@@ -107,3 +107,39 @@ download_1080_ts()
 # https://hls2.videos.sproutvideo.com/e244866ab182011fd8a9779038ab29e0/d2e2f447cc4303a2c4d324184979cfd9/video/240_00000.ts?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9obHMyLnZpZGVvcy5zcHJvdXR2aWRlby5jb20vZTI0NDg2NmFiMTgyMDExZmQ4YTk3NzkwMzhhYjI5ZTAvZDJlMmY0NDdjY
 
 # 3.then from download 240_00000.ts,240_00001.ts,240_00002,......etc,in current folder, (only need replace 240_00000 restare same,)
+
+
+
+
+
+
+
+
+current_dir = os.path.join(os.getcwd(), "videos")
+
+for folder in os.listdir(current_dir):
+    folder_path = os.path.join(current_dir, folder)
+
+    if not os.path.isdir(folder_path):
+        continue
+
+    if os.path.exists(os.path.join(folder_path, "output.mp4")):
+        continue
+
+    m3u8 = os.path.join(folder_path, "1080.m3u8")
+    output = os.path.join(folder_path, "output.mp4")
+    time.sleep(0.1)
+    if os.path.exists(m3u8):
+        print(f"Converting: {folder}")
+
+        subprocess.run([
+            "ffmpeg",
+            "-allowed_extensions", "ALL",
+            "-i", "1080.m3u8",
+            "-c", "copy",
+            "output.mp4"
+        ], cwd=folder_path)
+
+    # break
+
+print("Done")
