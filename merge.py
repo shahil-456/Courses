@@ -1,5 +1,7 @@
 import os
 import subprocess
+import json
+
 
 current_dir = os.path.join(os.getcwd(), "videos")
 
@@ -10,6 +12,20 @@ for folder in os.listdir(current_dir):
         continue
 
     if os.path.exists(os.path.join(folder_path, "output.mp4")):
+        continue
+
+    if os.path.exists(os.path.join(folder_path, "output.mp4")):
+        continue
+
+    json_path = os.path.join(folder_path, "ts.json")
+
+    if not os.path.exists(json_path):
+        continue
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    if "saved" not in data:
         continue
 
     if not any(f.lower().endswith(".ts") for f in os.listdir(folder_path)):

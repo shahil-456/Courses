@@ -47,7 +47,8 @@ def download_1080_ts():
                 if "saved" in data:
                     i += 1
 
-                    if i > 300:
+                    if i > 200:
+                        sys.exit()
                         return
 
                     continue

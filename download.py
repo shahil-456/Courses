@@ -246,7 +246,7 @@ def open_video():
 
 open_video()
 
-time.sleep(1500)
+time.sleep(60)
 
 subprocess.Popen(["python", "merge.py"])
 subprocess.Popen(["python", "del.py"])
