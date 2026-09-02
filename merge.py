@@ -12,7 +12,11 @@ for folder in os.listdir(current_dir):
     if os.path.exists(os.path.join(folder_path, "output.mp4")):
         continue
 
+    if not any(f.lower().endswith(".ts") for f in os.listdir(folder_path)):
+        continue
+
     m3u8 = os.path.join(folder_path, "1080.m3u8")
+
     output = os.path.join(folder_path, "output.mp4")
 
     if os.path.exists(m3u8):
