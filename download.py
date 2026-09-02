@@ -134,35 +134,41 @@ def watch_videos(context, page):
 
 
 
-
 def open_video():
-    with sync_playwright() as p:
-        browser = p.firefox.launch(headless=False)
 
-        context = browser.new_context(
-            storage_state="state.json"
-        )
+    try:
+        with sync_playwright() as p:
+            browser = p.firefox.launch(headless=False)
 
-        page = context.new_page()
-        page.goto(
-            "https://www.docmeded.com/user/watchvideo?userVideoID=550862",
-            wait_until="domcontentloaded"
-        )
-        watch_videos(context, page)
-
-        # Wait for user to login manually if redirected to login
-        if "site/login" in page.url:
-            page.wait_for_url(
-                "**/user/watchvideo?userVideoID=550862",
-                timeout=0
+            context = browser.new_context(
+                storage_state="state.json"
             )
 
-            context.storage_state(path="state.json")
-            print("state.json updated")
+            page = context.new_page()
+            page.goto(
+                "https://www.docmeded.com/user/watchvideo?userVideoID=550862",
+                wait_until="domcontentloaded"
+            )
 
-        page.wait_for_timeout(5000)
+            watch_videos(context, page)
 
+            if "site/login" in page.url:
+                page.wait_for_url(
+                    "**/user/watchvideo?userVideoID=550862",
+                    timeout=0
+                )
 
+                context.storage_state(path="state.json")
+                print("state.json updated")
 
+            page.wait_for_timeout(5000)
+
+    except Exception as e:
+        print("Error:", e)
 
 open_video()
+
+time.sleep(2000)
+
+subprocess.Popen(["python", "merge.py"])
+
