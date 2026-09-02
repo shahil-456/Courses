@@ -3,8 +3,8 @@ from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
     browser = p.firefox.launch(headless=False)
 
-    context = browser.new_context(storage_state="state.json")
-    
+    context = browser.new_context()
+
     page = context.new_page()
 
     page.goto("https://www.docmeded.com/video/item/11222")
