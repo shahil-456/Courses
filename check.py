@@ -4,15 +4,16 @@ import re
 import json
 import time
 import subprocess
+import sys
 
 def download_1080_ts():
 
     current_dir = os.path.join(os.getcwd(), "videos")
     i = 0
-
+    j=0
     while True:
-
-        if i > 200:
+        j += 1
+        if j > 200:
             sys.exit()
             return
 
