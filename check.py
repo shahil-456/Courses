@@ -9,6 +9,8 @@ import subprocess
 def download_1080_ts():
 
     current_dir = os.path.join(os.getcwd(), "videos")
+    i = 0
+
     while True:
         for folder in os.listdir(current_dir):
 
@@ -42,6 +44,11 @@ def download_1080_ts():
                     data = json.load(f)
 
                 if "saved" in data:
+                    i += 1
+
+                    if i > 300:
+                        return
+
                     continue
 
                 # Get link from ts.json
