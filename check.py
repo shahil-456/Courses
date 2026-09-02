@@ -58,7 +58,7 @@ def download_1080_ts():
                 while True:
                     url = link.replace("1080_00000.ts", f"1080_{index:05d}.ts")
                     output = os.path.join(folder_path, f"1080_{index:05d}.ts")
-                    time.sleep(0.3)
+                    time.sleep(0.2)
                     response = requests.get(url)
 
                     if response.status_code != 200:

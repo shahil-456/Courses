@@ -187,7 +187,7 @@ def watch_videos(context, page):
             videos.append({
                 "id": url.split("userVideoID=")[1],
                 "i": len(videos) + 1,
-                "name": "",
+                "name": title,
                 "link": url,
                 "saved": True
             })
@@ -212,11 +212,18 @@ def open_video():
 
             page = context.new_page()
             page.goto(
-                "https://www.docmeded.com/user/watchvideo?userVideoID=550862",
+                "https://www.docmeded.com/user/myvideos",
                 wait_until="domcontentloaded"
             )
 
+            link = page.locator(
+                "table.items tbody tr td:first-child a"
+            ).first.get_attribute("href")
 
+            page.goto(
+                "https://www.docmeded.com" + link,
+                wait_until="domcontentloaded"
+            )
 
             if "site/login" in page.url:
                 page.wait_for_url(
@@ -227,10 +234,10 @@ def open_video():
                 context.storage_state(path="state.json")
                 print("state.json updated")
 
-
+            time.sleep(200)
             watch_videos(context, page)
             
-            save_video_ids(page)
+            # save_video_ids(page)
 
             page.wait_for_timeout(5000)
 
@@ -239,7 +246,7 @@ def open_video():
 
 open_video()
 
-time.sleep(2000)
+time.sleep(1500)
 
 subprocess.Popen(["python", "merge.py"])
 
