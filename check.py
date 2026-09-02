@@ -12,6 +12,7 @@ def download_1080_ts():
     i = 0
 
     while True:
+        print('checking')
         for folder in os.listdir(current_dir):
 
             try:
@@ -35,7 +36,7 @@ def download_1080_ts():
                     continue
 
                 json_path = os.path.join(folder_path, "ts.json")
-                print('checking')
+                # print('checking')
 
                 if not os.path.exists(json_path):
                     continue
