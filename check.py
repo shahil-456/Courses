@@ -78,11 +78,12 @@ def download_1080_ts():
             except Exception as e:
                 print(f"Error in {folder}: {e}")
                 continue
-        time.sleep(3)        
+        time.sleep(3)   
+
+
 # after download all ts files add key saved :true inside ts.json/
 
 download_1080_ts()
-
 
 # new function loop throght all cuurent dir folders,
 # 1.open ts.json  file inside,
