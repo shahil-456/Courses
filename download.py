@@ -98,7 +98,7 @@ def save_1080_ts(request,title='demo'):
 
 
 def save_video_ids(page):
-    
+
     if os.path.exists("videos.json"):
         with open("videos.json", "r", encoding="utf-8") as f:
             videos = json.load(f)
@@ -150,8 +150,13 @@ def watch_videos(context, page):
 
     for url in urls:
 
-        if any(v["link"] == url for v in videos):
+        video = next((v for v in videos if v["link"] == url), None)
+
+        if video and video["saved"] is True:
             continue
+
+        # if any(v["link"] == url and v["saved"] is True for v in videos):
+        #     continue
 
         video_page = context.new_page()
 
@@ -176,8 +181,22 @@ def watch_videos(context, page):
         # video_page.on("request", save_1080_key)
         # video_page.on("request", save_1080_ts)
 
-        time.sleep(5)
-        video_page.close()
+        if video:
+            video["saved"] = True
+        else:
+            videos.append({
+                "id": url.split("userVideoID=")[1],
+                "i": len(videos) + 1,
+                "name": "",
+                "link": url,
+                "saved": True
+            })
+
+        with open("videos.json", "w", encoding="utf-8") as f:
+            json.dump(videos, f, indent=4, ensure_ascii=False)
+
+            time.sleep(4)
+            video_page.close()
 
 
 
@@ -208,9 +227,10 @@ def open_video():
                 context.storage_state(path="state.json")
                 print("state.json updated")
 
-            save_video_ids(page)
 
-            # watch_videos(context, page)
+            watch_videos(context, page)
+            
+            save_video_ids(page)
 
             page.wait_for_timeout(5000)
 
