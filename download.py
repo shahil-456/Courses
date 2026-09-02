@@ -98,7 +98,14 @@ def save_1080_ts(request,title='demo'):
 
 
 def save_video_ids(page):
-    videos = []
+    
+    if os.path.exists("videos.json"):
+        with open("videos.json", "r", encoding="utf-8") as f:
+            videos = json.load(f)
+    else:
+        videos = []
+
+    existing_ids = {v["id"] for v in videos}
 
     rows = page.locator("tbody tr")
 
@@ -108,16 +115,16 @@ def save_video_ids(page):
 
         href = link.get_attribute("href")
         name = link.inner_text().strip()
-
         video_id = href.split("userVideoID=")[1]
 
-        videos.append({
-            "id": video_id,
-            "i": i + 1,
-            "name": name,
-            "link": "https://www.docmeded.com" + href,
-            "saved": False
-        })
+        if video_id not in existing_ids:
+            videos.append({
+                "id": video_id,
+                "i": len(videos) + 1,
+                "name": name,
+                "link": "https://www.docmeded.com" + href,
+                "saved": False
+            })
 
     with open("videos.json", "w", encoding="utf-8") as f:
         json.dump(videos, f, indent=4, ensure_ascii=False)
@@ -132,6 +139,9 @@ def save_video_ids(page):
 
 def watch_videos(context, page):
 
+    with open("videos.json", "r", encoding="utf-8") as f:
+        videos = json.load(f)
+
     urls = page.locator(
         "table.items tbody tr td:first-child a"
     ).evaluate_all(
@@ -139,6 +149,10 @@ def watch_videos(context, page):
     )
 
     for url in urls:
+
+        if any(v["link"] == url for v in videos):
+            continue
+
         video_page = context.new_page()
 
         # video_page.on("request", handle_request)
