@@ -97,6 +97,39 @@ def save_1080_ts(request,title='demo'):
     # ts_saved = True
 
 
+def save_video_ids(page):
+    videos = []
+
+    rows = page.locator("tbody tr")
+
+    for i in range(rows.count()):
+        row = rows.nth(i)
+        link = row.locator("a").first
+
+        href = link.get_attribute("href")
+        name = link.inner_text().strip()
+
+        video_id = href.split("userVideoID=")[1]
+
+        videos.append({
+            "id": video_id,
+            "i": i + 1,
+            "name": name,
+            "link": "https://www.docmeded.com" + href,
+            "saved": False
+        })
+
+    with open("videos.json", "w", encoding="utf-8") as f:
+        json.dump(videos, f, indent=4, ensure_ascii=False)
+
+
+
+
+
+
+
+
+
 def watch_videos(context, page):
 
     urls = page.locator(
@@ -150,7 +183,7 @@ def open_video():
                 wait_until="domcontentloaded"
             )
 
-            watch_videos(context, page)
+
 
             if "site/login" in page.url:
                 page.wait_for_url(
@@ -160,6 +193,10 @@ def open_video():
 
                 context.storage_state(path="state.json")
                 print("state.json updated")
+
+            save_video_ids(page)
+
+            # watch_videos(context, page)
 
             page.wait_for_timeout(5000)
 
