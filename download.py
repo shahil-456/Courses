@@ -4,6 +4,9 @@ import json
 import os
 import requests
 import re
+import subprocess
+
+subprocess.Popen(["python", "check.py"])
 
 
 def handle_request(request, title='demo'):
