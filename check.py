@@ -23,6 +23,9 @@ def download_1080_ts():
                 if not any(f.endswith(".m3u8") for f in files):
                     continue
 
+                if  any(f.endswith(".mp4") for f in files):
+                    continue
+
                 if not any(f.endswith(".ts") for f in files):
                     continue
 
