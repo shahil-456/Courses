@@ -133,8 +133,32 @@ def save_video_ids(page):
 
 
 
+def download_syllabus(page):
 
+    os.makedirs("pdfs", exist_ok=True)
+    print('downloading-pdf')
+    rows = page.locator("table.items tbody tr")
 
+    for i in range(rows.count()):
+        row = rows.nth(i)
+
+        name = row.locator("td:first-child a").inner_text().strip()
+        update = row.locator("td .file-links a.update")
+
+        update.click()
+
+        pdf_link = page.locator("#dialogContent a[href$='.pdf']")
+        pdf_link.wait_for(state="visible", timeout=30000)
+
+        with page.expect_download(timeout=600000) as download_info:
+            pdf_link.click()
+
+        download = download_info.value
+
+        safe_name = re.sub(r'[<>:"/\\|?*]', '_', name)
+        output = os.path.join("pdfs", safe_name + ".pdf")
+
+        download.save_as(output)
 
 
 def watch_videos(context, page):
@@ -216,6 +240,18 @@ def open_video():
                 wait_until="domcontentloaded"
             )
 
+            if "site/login" in page.url:
+                page.wait_for_url(
+                    "**/user/myvideos",
+                    timeout=0
+                )
+
+                context.storage_state(path="state.json")
+                print("state.json updated")
+
+
+            download_syllabus(page)
+
             link = page.locator(
                 "table.items tbody tr td:first-child a"
             ).first.get_attribute("href")
@@ -225,16 +261,7 @@ def open_video():
                 wait_until="domcontentloaded"
             )
 
-            if "site/login" in page.url:
-                page.wait_for_url(
-                    "**/user/watchvideo?userVideoID=550862",
-                    timeout=0
-                )
-
-                context.storage_state(path="state.json")
-                print("state.json updated")
-
-            time.sleep(3)
+            time.sleep(30)
             watch_videos(context, page)
             
             # save_video_ids(page)
