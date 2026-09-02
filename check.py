@@ -5,13 +5,17 @@ import json
 import time
 import subprocess
 
-
 def download_1080_ts():
 
     current_dir = os.path.join(os.getcwd(), "videos")
     i = 0
 
     while True:
+
+        if i > 200:
+            sys.exit()
+            return
+
         print('checking')
         for folder in os.listdir(current_dir):
 
