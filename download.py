@@ -234,7 +234,7 @@ def open_video():
                 context.storage_state(path="state.json")
                 print("state.json updated")
 
-            time.sleep(200)
+            time.sleep(3)
             watch_videos(context, page)
             
             # save_video_ids(page)

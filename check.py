@@ -33,7 +33,7 @@ def download_1080_ts():
                     continue
 
                 json_path = os.path.join(folder_path, "ts.json")
-                print('downloading')
+                print('checking')
 
                 if not os.path.exists(json_path):
                     continue
@@ -60,7 +60,7 @@ def download_1080_ts():
                     output = os.path.join(folder_path, f"1080_{index:05d}.ts")
                     time.sleep(0.2)
                     response = requests.get(url)
-
+                    print('downloading')
                     if response.status_code != 200:
                         break
 
