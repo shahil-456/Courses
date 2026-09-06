@@ -25,81 +25,6 @@ def handle_request(request, title='demo'):
         print("TS:", request.url)
 
 
-def save_1080_m3u8(request,title='demo'):
-
-    if ".m3u8" not in request.url:
-        return
-
-    url = request.url.replace("/720.m3u8", "/1080.m3u8")
-    url = url.replace("/480.m3u8", "/1080.m3u8")
-
-    safe_name = re.sub(r'[<>:"/\\|?*]', '', title)
-    folder = os.path.join("videos", safe_name)
-    os.makedirs(folder, exist_ok=True)
-
-    response = requests.get(url)
-
-    if response.ok:
-        with open(os.path.join(folder, "1080.m3u8"), "w", encoding="utf-8") as f:
-            f.write(response.text)
-
-        print("Saved:", url)
-
-
-def save_1080_key(request,title='demo'):
-    if ".key" not in request.url:
-        return
-
-    url = request.url.replace("/720.key", "/1080.key")
-    url = url.replace("/480.key", "/1080.key")
-
-    safe_name = re.sub(r'[<>:"/\\|?*]', '', title)
-    folder = os.path.join("videos", safe_name)
-    os.makedirs(folder, exist_ok=True)
-
-    response = requests.get(url)
-
-    if response.ok:
-        with open(os.path.join(folder, "1080.key"), "wb") as f:
-            f.write(response.content)
-
-        print("Saved key:", url)
-
-def save_1080_ts(request,title='demo'):
-    # ts_saved = False
-
-    # nonlocal ts_saved
-    # if ".ts" not in request.url or ts_saved:
-    #     return
-    if ".ts" not in request.url:
-        return
-
-    url = request.url.replace("/720_", "/1080_")
-    url = url.replace("/480_", "/1080_")
-
-    safe_name = re.sub(r'[<>:"/\\|?*]', '', title)
-    folder = os.path.join("videos", safe_name)
-    os.makedirs(folder, exist_ok=True)
-
-    ts_name = url.split("/")[-1].split("?")[0]
-
-    response = requests.get(url)
-
-    if response.ok:
-        with open(os.path.join(folder, ts_name), "wb") as f:
-            f.write(response.content)
-
-        with open(os.path.join(folder, "ts.json"), "w", encoding="utf-8") as f:
-            json.dump({
-                "name": ts_name,
-                "link": url
-            }, f, indent=4)
-
-        print("Saved TS:", ts_name)
-
-    # ts_saved = True
-
-
 def save_video_ids(page):
 
     if os.path.exists("videos.json"):
@@ -158,7 +83,6 @@ def download_syllabus(page):
 
         download = download_info.value
 
-        safe_name = re.sub(r'[<>:"/\\|?*]', '_', name)
         output = os.path.join("pdfs", safe_name + ".pdf")
 
         download.save_as(output)
@@ -420,7 +344,7 @@ def save_data(response, folder_name):
         if not path:
             return
 
-        folder_name = re.sub(r'[<>:"/\\|?*]', '_', folder_name)
+        # folder_name = re.sub(r'[<>:"/\\|?*]', '_', folder_name)
 
         filepath = os.path.join(
             "scorm",
@@ -460,11 +384,22 @@ def click_assets(page):
     if main_folder not in data:
         data[main_folder] = {}
 
+    saved_count = sum(
+        1 for item in data[main_folder].values()
+        if item.get("saved") is True
+    )
+
+    if count == saved_count:
+        return
+
+        
     for i in range(count):
 
         folder_name = page.locator(
             "span[id*=lblAssetWithFileActivityName]"
-        ).nth(i).inner_text()
+        ).nth(i).inner_text().strip()
+
+        folder_name = re.sub(r'[<>:"/\\|?*]', '_', folder_name)
 
         handler = lambda response: save_data(response, folder_name)
 
@@ -472,7 +407,7 @@ def click_assets(page):
 
         page.locator(selector).nth(i).click()
 
-        time.sleep(15)
+        time.sleep(25)
 
         page.locator("#btnTitleBarReturnToLMS").click()
 
