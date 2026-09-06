@@ -450,6 +450,16 @@ def click_assets(page):
 
     count = page.locator(selector).count()
 
+    # Load existing saved.json
+    if os.path.exists("saved.json"):
+        with open("saved.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+    else:
+        data = {}
+
+    if main_folder not in data:
+        data[main_folder] = {}
+
     for i in range(count):
 
         folder_name = page.locator(
@@ -470,6 +480,18 @@ def click_assets(page):
             "domcontentloaded",
             timeout=30000
         )
+
+        if folder_name not in data[main_folder]:
+
+            data[main_folder][folder_name] = {
+                "id": i,
+                "name": folder_name,
+                "saved": False
+            }
+
+            # Update saved.json immediately
+            with open("saved.json", "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=4, ensure_ascii=False)
 
         page.remove_listener("response", handler)
 
