@@ -7,7 +7,7 @@ with sync_playwright() as p:
 
     page = context.new_page()
 
-    page.goto("https://www.docmeded.com/user/watchvideo?userVideoID=550862")
+    page.goto("https://www.sccm.org/mysccm/my-learning")
 
     input("Login manually, then press Enter here...")
 

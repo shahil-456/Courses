@@ -1,0 +1,29 @@
+﻿.input-group-btn > .btn.factor360-catalogAssetSearch-searchButton, .btn.factor360-catalogAssetSearch-searchButton {
+    text-decoration: none;
+    margin-right: 2px;
+}
+
+.input-group-btn > .btn.showStartedBundleLearningActivityOnly, .btn.showStartedBundleLearningActivityOnly {
+    text-decoration: none;
+    margin-right: 2px;
+    margin-left:3px;
+    background: none;
+    color: inherit !important;
+    border-color: #ccc;
+}
+
+    .input-group-btn > .btn.showStartedBundleLearningActivityOnly.startedBundleLearningActivityOnlySelected, .btn.showStartedBundleLearningActivityOnly.startedBundleLearningActivityOnlySelected {
+        border-color: #21ba45;
+    }
+
+.input-group-btn.factor360-catalogAssetSearch-searchButtonGroup {
+    display: inline-flex;
+    margin-top: 5px;
+}
+
+@media screen and (min-width:769px) {
+    .input-group-btn.factor360-catalogAssetSearch-searchButtonGroup {
+        display: table-cell;
+        margin-top: 0px;
+    }
+}
