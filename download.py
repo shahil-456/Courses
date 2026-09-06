@@ -392,7 +392,7 @@ def click_assets(page):
     if count == saved_count:
         return
 
-        
+
     for i in range(count):
 
         folder_name = page.locator(
@@ -401,19 +401,22 @@ def click_assets(page):
 
         folder_name = re.sub(r'[<>:"/\\|?*]', '_', folder_name)
 
+        if folder_name in data[main_folder]:
+            continue
+
         handler = lambda response: save_data(response, folder_name)
 
         page.on("response", handler)
 
         page.locator(selector).nth(i).click()
 
-        time.sleep(25)
+        time.sleep(24)
 
         page.locator("#btnTitleBarReturnToLMS").click()
 
         page.wait_for_load_state(
             "domcontentloaded",
-            timeout=30000
+            timeout=50000
         )
 
         if folder_name not in data[main_folder]:
@@ -429,7 +432,7 @@ def click_assets(page):
                 json.dump(data, f, indent=4, ensure_ascii=False)
 
         page.remove_listener("response", handler)
-
+        time.sleep(1)
 
 
 
