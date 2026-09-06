@@ -338,13 +338,20 @@ def open_course(page):
     # print(1)
     # time.sleep(199)
 
+main_folder = ""
+
 
 def click_courses(page):
+    global main_folder
+
     selector = "a.factor360Hyperlink"
 
     count = page.locator(selector).count()
 
     for i in range(1, count - 1):
+
+        main_folder = re.sub(r'[<>:"/\\|?*]', '_', page.locator(selector).nth(i).inner_text()).strip()
+
         page.locator(selector).nth(i).click()
 
         page.wait_for_load_state(
@@ -384,6 +391,8 @@ def click_assets(page):
 
 
 def save_data(response, folder_name):
+    global main_folder
+
     url = response.url
     
     if response.status in [301, 302, 303, 307, 308]:
@@ -396,8 +405,15 @@ def save_data(response, folder_name):
 
         if not path:
             return
+
         folder_name = re.sub(r'[<>:"/\\|?*]', '_', folder_name)
-        filepath = os.path.join("scorm", folder_name, path)
+
+        filepath = os.path.join(
+            "scorm",
+            main_folder,
+            folder_name,
+            path
+        )
 
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
