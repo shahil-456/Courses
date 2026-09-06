@@ -383,9 +383,11 @@ def click_assets(page):
         print("Completed:", i + 1)
 
 
-
-def save_data(response):
+def save_data(response, folder_name):
     url = response.url
+    
+    if response.status in [301, 302, 303, 307, 308]:
+        return
 
     try:
         body = response.body()
@@ -394,18 +396,51 @@ def save_data(response):
 
         if not path:
             return
-
-        filepath = os.path.join("scorm", path)
+        folder_name = re.sub(r'[<>:"/\\|?*]', '_', folder_name)
+        filepath = os.path.join("scorm", folder_name, path)
 
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
         with open(filepath, "wb") as f:
             f.write(body)
 
-        print("Saved:", path)
+        print("Saved:", folder_name, path)
 
     except Exception as e:
         print("Failed:", url, e)
+
+
+
+
+def click_assets(page):
+    selector = "a.customActivityAssetLinkButton"
+
+    count = page.locator(selector).count()
+
+    for i in range(count):
+
+        folder_name = page.locator(
+            "span[id*=lblAssetWithFileActivityName]"
+        ).nth(i).inner_text()
+
+        handler = lambda response: save_data(response, folder_name)
+
+        page.on("response", handler)
+
+        page.locator(selector).nth(i).click()
+
+        time.sleep(3)
+
+        page.locator("#btnTitleBarReturnToLMS").click()
+
+        page.wait_for_load_state(
+            "domcontentloaded",
+            timeout=30000
+        )
+
+        page.remove_listener("response", handler)
+
+
 
 
 with sync_playwright() as p:
@@ -417,7 +452,7 @@ with sync_playwright() as p:
 
     page = context.new_page()
 
-    page.on("response", lambda response: save_data(response))
+    # page.on("response", lambda response: save_data(response))
 
     page.goto(
         "https://lms.sccm.org/Users/Home.aspx",
