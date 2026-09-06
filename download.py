@@ -384,24 +384,24 @@ def click_courses(page):
 
 
 
-def click_assets(page):
-    selector = "a.customActivityAssetLinkButton"
+# def click_assets(page):
+#     selector = "a.customActivityAssetLinkButton"
 
-    count = page.locator(selector).count()
+#     count = page.locator(selector).count()
 
-    for i in range(count):
-        page.locator(selector).nth(i).click()
+#     for i in range(count):
+#         page.locator(selector).nth(i).click()
 
-        time.sleep(10)
+#         time.sleep(10)
 
-        page.locator("#btnTitleBarReturnToLMS").click()
+#         page.locator("#btnTitleBarReturnToLMS").click()
 
-        page.wait_for_load_state(
-            "domcontentloaded",
-            timeout=150000
-        )
+#         page.wait_for_load_state(
+#             "domcontentloaded",
+#             timeout=150000
+#         )
 
-        print("Completed:", i + 1)
+#         print("Completed:", i + 1)
 
 
 def save_data(response, folder_name):
