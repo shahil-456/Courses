@@ -443,6 +443,9 @@ def save_data(response, folder_name):
 
 
 def click_assets(page):
+    
+    global main_folder
+
     selector = "a.customActivityAssetLinkButton"
 
     count = page.locator(selector).count()

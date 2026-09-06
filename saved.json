@@ -1,0 +1,14 @@
+{
+    "Course Name": {
+        "Asset 1": {
+            "id": 0,
+            "name": "Asset 1",
+            "saved": false
+        },
+        "Asset 2": {
+            "id": 1,
+            "name": "Asset 2",
+            "saved": false
+        }
+    }
+}
