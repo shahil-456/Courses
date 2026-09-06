@@ -329,7 +329,7 @@ def open_course(page):
     page.goto(
         course_url,
         wait_until="domcontentloaded",
-        timeout=20000
+        timeout=30000
     )
 
     time.sleep(2)
@@ -348,6 +348,8 @@ def click_courses(page):
 
     count = page.locator(selector).count()
 
+    current_url = page.url
+
     for i in range(1, count - 1):
 
         main_folder = re.sub(r'[<>:"/\\|?*]', '_', page.locator(selector).nth(i).inner_text()).strip()
@@ -360,12 +362,24 @@ def click_courses(page):
         )
 
         print("Opened:", i + 1)
-        time.sleep(2)
+        time.sleep(3)
+
         click_assets(page)
-        page.go_back(
+
+        page.goto(
+            current_url,
             wait_until="domcontentloaded",
-            timeout=20000
+            timeout=30000
         )
+
+        time.sleep(2)
+
+
+
+        # page.go_back(
+        #     wait_until="domcontentloaded",
+        #     timeout=20000
+        # )
 
 
 
@@ -445,7 +459,7 @@ def click_assets(page):
 
         page.locator(selector).nth(i).click()
 
-        time.sleep(3)
+        time.sleep(15)
 
         page.locator("#btnTitleBarReturnToLMS").click()
 
@@ -478,7 +492,7 @@ with sync_playwright() as p:
 
     open_course(page)
 
-    time.sleep(6)
+    time.sleep(4)
 
     page.wait_for_selector(
         "#BodyContent_ifrmScormContent"
