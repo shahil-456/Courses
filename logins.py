@@ -9,7 +9,7 @@ with sync_playwright() as p:
 
     page = context.new_page()
 
-    page.goto("https://apps.arrs.org/onlineposters26")
+    page.goto("https://apps.arrs.org/MeetingPortal26/")
 
     input("Login manually, then press Enter here...")
 

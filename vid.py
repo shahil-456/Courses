@@ -94,6 +94,7 @@ def request_handler(name, request):
 
 with sync_playwright() as p:
     browser = p.firefox.launch(headless=False)
+    links_data = []
 
     context = browser.new_context(storage_state="state.json")
     page = context.new_page()
@@ -101,16 +102,26 @@ with sync_playwright() as p:
     page.goto("https://apps.arrs.org/onlineposters26")
     page.wait_for_load_state("domcontentloaded", timeout=10000)
 
-    time.sleep(10)
+    time.sleep(14)
     links = page.locator('tr a.video[data-video]')
     count = links.count()
 
     print("Videos:", count)
 
+    if os.path.exists("links.json"):
+        with open("links.json", "r", encoding="utf-8") as f:
+            links_data = json.load(f)
+
+    existing_urls = {item["url"] for item in links_data}
+
     for i in range(count):
 
-        time.sleep(3)
+        time.sleep(5)
         url = links.nth(i).get_attribute("data-video")
+        
+        if url in existing_urls:
+            continue
+
         print(url)
         tr = links.nth(i).locator("xpath=ancestor::tr")
         name = tr.locator("a.video").inner_text()
@@ -121,8 +132,25 @@ with sync_playwright() as p:
 
         tab.on("request", lambda request, name=name: request_handler(name, request))
 
-        time.sleep(15)
+        time.sleep(10)
+
+        link = links.nth(i)
+
+        fid = link.get_attribute("fid")
+        name = link.inner_text()
+        url = link.get_attribute("data-video")
+
+        links_data.append({
+            "id": fid,
+            "name": name,
+            "url": url
+        })
+
+        with open("links.json", "w", encoding="utf-8") as f:
+            json.dump(links_data, f, ensure_ascii=False, indent=4)
+
+
         tab.close()
 
-    time.sleep(58)
+    time.sleep(50)
     browser.close()
