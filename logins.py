@@ -9,7 +9,7 @@ with sync_playwright() as p:
 
     page = context.new_page()
 
-    page.goto("https://lms.sccm.org/Users/LearningActivity/LearningActivityDetail.aspx?LearningActivityID=YHsgZYwr%2fkFy2mxMshuEsQ%3d%3d&OriginatedFromUserLearningActivityID=QzIl0RBjDW3SqmheS8pqRQ%3d%3d")
+    page.goto("https://apps.arrs.org/onlineposters26")
 
     input("Login manually, then press Enter here...")
 
