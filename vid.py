@@ -27,9 +27,24 @@ def download_vimeo(name, playlist_url):
 
     # Find 1080p
     video = next(
-        v for v in data["video"]
-        if v.get("width") == 1920 and v.get("height") == 1080
+        (
+            v for v in data["video"]
+            if v.get("width") == 1920 and v.get("height") == 1080
+        ),
+        None
     )
+
+    if not video:
+        video = next(
+            (
+                v for v in data["video"]
+                if v.get("width") == 1280 and v.get("height") == 720
+            ),
+            None
+        )
+
+    if not video:
+        video = data["video"][1]
 
     print("Resolution:", video["width"], "x", video["height"])
     print("Duration:", video["duration"])
@@ -69,12 +84,11 @@ def download_vimeo(name, playlist_url):
 
 
 def request_handler(name, request):
-    print(name)
-    print(request.url)
-
     if ".json" in request.url:
-        download_vimeo(name, request.url)
-
+        try:
+            download_vimeo(name, request.url)
+        except Exception as e:
+            print("Download error:", e)
 
     # tab = context.new_page()
     # tab.goto(url)
@@ -116,41 +130,54 @@ with sync_playwright() as p:
 
     for i in range(count):
 
-        time.sleep(5)
-        url = links.nth(i).get_attribute("data-video")
-        
-        if url in existing_urls:
-            continue
+        try:
 
-        print(url)
-        tr = links.nth(i).locator("xpath=ancestor::tr")
-        name = tr.locator("a.video").inner_text()
-        name = clean_name(name)
-        print(name)
-        tab = context.new_page()
-        tab.goto(url)
+            time.sleep(10)
+            url = links.nth(i).get_attribute("data-video")
 
-        tab.on("request", lambda request, name=name: request_handler(name, request))
+            if url in existing_urls:
+                continue
 
-        time.sleep(10)
+            print(url)
+            tr = links.nth(i).locator("xpath=ancestor::tr")
+            name = tr.locator("a.video").inner_text()
+            name = clean_name(name)
+            print(name)
 
-        link = links.nth(i)
+            tab = context.new_page()
+            tab.on(
+                "request",
+                lambda request, name=name: request_handler(name, request)
+            )
+            tab.goto(url)
 
-        fid = link.get_attribute("fid")
-        name = link.inner_text()
-        url = link.get_attribute("data-video")
-
-        links_data.append({
-            "id": fid,
-            "name": name,
-            "url": url
-        })
-
-        with open("links.json", "w", encoding="utf-8") as f:
-            json.dump(links_data, f, ensure_ascii=False, indent=4)
+            # tab.on("request", lambda request, name=name: request_handler(name, request))
 
 
-        tab.close()
+            link = links.nth(i)
+
+            fid = link.get_attribute("fid")
+            # name = link.inner_text()
+            # url = link.get_attribute("data-video")
+
+            links_data.append({
+                "id": fid,
+                "name": name,
+                "url": url
+            })
+
+            with open("links.json", "w", encoding="utf-8") as f:
+                json.dump(links_data, f, ensure_ascii=False, indent=4)
+
+            time.sleep(15)
+
+            tab.close()
+
+
+        except Exception as e:
+            print("Error:", e)
+
+
 
     time.sleep(50)
     browser.close()
