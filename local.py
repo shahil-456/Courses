@@ -262,7 +262,7 @@ def open_course(page):
     # print(1)
     # time.sleep(199)
 
-main_folder = ""
+main_folder = "hello"
 
 
 def click_courses(page):
@@ -328,23 +328,37 @@ def click_courses(page):
 #         print("Completed:", i + 1)
 
 
-def save_data(response, folder_name):
+
+def save_data(response, folder_name="test"):
+
     global main_folder
 
     url = response.url
-    
+    print('---1', url)
+
     if response.status in [301, 302, 303, 307, 308]:
         return
 
     try:
-        body = response.body()
-
         path = urlparse(url).path.lstrip("/")
 
         if not path:
             return
 
-        # folder_name = re.sub(r'[<>:"/\\|?*]', '_', folder_name)
+        body = None
+
+        for attempt in range(3):
+            try:
+                body = response.body()
+                break
+            except Exception as e:
+                if attempt == 2:
+                    print("Failed:", url, e)
+                    return
+                time.sleep(0.5)
+
+        if body is None:
+            return
 
         filepath = os.path.join(
             "scorm",
@@ -362,7 +376,6 @@ def save_data(response, folder_name):
 
     except Exception as e:
         print("Failed:", url, e)
-
 
 
 
@@ -438,88 +451,86 @@ def click_assets(page):
 
 
 
+
 def click_lessons(page):
-    print(11111)
-    time.sleep(4)
 
-    objectives = page.locator(
-        'a.overview-list-item__link[href*="#/lessons/"]'
-    ).filter(has_text="a")
+    print('clicked')
 
-    try:
-        objectives.first.wait_for(
-            state="visible",
-            timeout=12000
-        )
-
-        print("Objectives found:", objectives.count())
-
-        objectives.first.click(force=True)
-        time.sleep(0.7)
-
-
-    except Exception as e:
-        print("Objectives not found:", e)
-        # return
-
-    # Wait for sidebar lessons to appear
+    folder_name='test'
     time.sleep(2)
-    lesson = page.locator(
-        'li.nav-sidebar__outline-list-item'
-    ).first
+    # handler = lambda response: save_data(response, folder_name)
 
-    lesson.wait_for(state="attached", timeout=15000)
-    lesson.locator('a[data-nav-item]').click(force=True, timeout=15000)
-
-    count = lesson.count()
-    print("Lessons:", count)
-
-    i=0
-
-    time.sleep(3)
-
-    while True:
-        page.mouse.wheel(0, 100000)
-        time.sleep(2)
-        continue_btn = page.locator('button[data-continue-btn]:visible')
-        next_lesson = page.locator(
-            'div.lesson-nav[data-next-lesson="true"] a[data-direction="next"]:visible'
-        )
-        page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-        # Try continue_btn first
-        try:
-            continue_btn.wait_for(state="visible", timeout=5000)
-            continue_btn.first.dispatch_event('click')
-            time.sleep(3)
-            continue
-        except Exception:
-            pass
+    # page.on("response", handler)
+    # time.sleep(30)
 
 
-        # page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+    # page.remove_listener("response", handler)
 
 
-        # Then try next_lesson
-        try:
-            next_lesson.wait_for(state="visible", timeout=5000)
-            next_lesson.first.dispatch_event('click')
-            time.sleep(3)
-            continue
-        except Exception:
-            pass
+#     # Wait for sidebar lessons to appear
+#     try:
+#         lesson = page.locator(
+#             'li.nav-sidebar__outline-list-item'
+#         ).first
 
-        # Neither found — give up
-        # print('stopped')
-        i+=1
-        print(i)
+#         lesson.wait_for(state="attached", timeout=10000)
+#         lesson.locator('a[data-nav-item]').click(force=True, timeout=10000)
 
-        if i > 5:
-            time.sleep(2)
-            print('stopped')
-            break   
+#     except Exception as e:
+#         print("Lesson click failed:", e)
+
+#     count = lesson.count()
+#     print("Lessons:", count)
+
+#     i=0
+
+#     time.sleep(3)
+
+#     while True:
+#         page.mouse.wheel(0, 100000)
+#         time.sleep(2)
+
+# # Locate the SCORM iframe first
+#         frame = page.frame_locator('iframe#scorm_object') # Adjust selector to match your iframe
+#         continue_btn = frame.locator('button[data-continue-btn]')        
+
+#         next_lesson = page.locator(
+#             'div.lesson-nav[data-next-lesson="true"] a[data-direction="next"]:visible'
+#         )
+#         page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+#         # Try continue_btn first
+#         try:
+#             continue_btn.wait_for(state="visible", timeout=5000)
+#             # continue_btn.first.dispatch_event('click')
+#             continue_btn.first.scroll_into_view_if_needed()
+#             continue_btn.first.click(timeout=5000)
+#             time.sleep(3)
+#             continue
+#         except Exception:
+#             pass
 
 
+#         # page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
 
+
+#         # Then try next_lesson
+#         try:
+#             next_lesson.wait_for(state="visible", timeout=5000)
+#             next_lesson.first.dispatch_event('click')
+#             time.sleep(3)
+#             continue
+#         except Exception:
+#             pass
+
+#         # Neither found — give up
+#         # print('stopped')
+#         i+=1
+#         print(i)
+
+#         if i > 5:
+#             time.sleep(2)
+#             print('stopped')
+#             break   
 
 
 
@@ -550,24 +561,30 @@ def click_lessons(page):
 with sync_playwright() as p:
     browser = p.firefox.launch(headless=False)
 
-    context = browser.new_context()
+    context = browser.new_context(
+        storage_state="state.json",
+        viewport={'width': 1920, 'height': 1080}
+    )
+
+    context.set_extra_http_headers({
+        "Cache-Control": "no-cache"
+    })
 
     page = context.new_page()
-
-
-    # page.on("response", lambda response: save_data(response))
+    page.on("response", lambda response: save_data(response, 'tester'))
 
     page.goto(
-        "http://localhost:8002",
+        "https://lms.sccm.org/Users/LearningActivity/TakeScormCourse.aspx?q=6mqDvkTvAcWAlcKYmAEItA%3d%3d&UserLearningActivityID=eQ%2fG5%2faAKVPIu4AyK7r93Q%3d%3d",
         wait_until="domcontentloaded",
-        timeout=14000
+        timeout=34000
     )
+
 
     click_lessons(page)
 
     # open_course(page)
 
-    time.sleep(2000)
+    time.sleep(10)
 
     # page.wait_for_selector(
     #     "#BodyContent_ifrmScormContent"

@@ -278,7 +278,10 @@ def click_courses(page):
 
         main_folder = re.sub(r'[<>:"/\\|?*]', '_', page.locator(selector).nth(i).inner_text()).strip()
 
-        page.locator(selector).nth(i).click()
+        page.locator(selector).nth(i).click(
+            force=True,
+            no_wait_after=True
+        )
 
         page.wait_for_load_state(
             "domcontentloaded",
@@ -328,23 +331,42 @@ def click_courses(page):
 #         print("Completed:", i + 1)
 
 
+
 def save_data(response, folder_name):
+
+    # return
     global main_folder
 
     url = response.url
-    
+
     if response.status in [301, 302, 303, 307, 308]:
         return
 
     try:
-        body = response.body()
-
         path = urlparse(url).path.lstrip("/")
 
         if not path:
             return
 
-        # folder_name = re.sub(r'[<>:"/\\|?*]', '_', folder_name)
+        # Only save actual SCORM assets
+        # if "/scormcontent/assets/" not in path.lower():
+        #     return
+
+        body = None
+
+        # Retry because Firefox may temporarily fail to provide the body
+        for attempt in range(3):
+            try:
+                body = response.body()
+                break
+            except Exception as e:
+                if attempt == 2:
+                    print("Failed:", url, e)
+                    return
+                time.sleep(0.5)
+
+        if body is None:
+            return
 
         filepath = os.path.join(
             "scorm",
@@ -362,6 +384,8 @@ def save_data(response, folder_name):
 
     except Exception as e:
         print("Failed:", url, e)
+
+
 
 
 
@@ -394,7 +418,7 @@ def click_assets(page):
 
 
     for i in range(count):
-
+        time.sleep(2)
         folder_name = page.locator(
             "span[id*=lblAssetWithFileActivityName]"
         ).nth(i).inner_text().strip()
@@ -408,16 +432,29 @@ def click_assets(page):
 
         page.on("response", handler)
 
-        page.locator(selector).nth(i).click()
+        page.locator(selector).nth(i).click(
+            force=True,
+            no_wait_after=True
+        )
 
-        time.sleep(24)
+        time.sleep(5)
 
-        page.locator("#btnTitleBarReturnToLMS").click()
 
         page.wait_for_load_state(
             "domcontentloaded",
-            timeout=50000
+            timeout=150000
         )
+
+        
+        time.sleep(5)
+
+        click_lessons(page)
+
+        time.sleep(5)
+
+        page.locator("#btnTitleBarReturnToLMS").click()
+
+        time.sleep(3)
 
         if folder_name not in data[main_folder]:
 
@@ -436,12 +473,180 @@ def click_assets(page):
 
 
 
+
+
+
+
+# def click_lessons(page):
+#     print(11111)
+#     time.sleep(2)
+
+#     objectives = page.locator(
+#         'a.overview-list-item__link[href*="#/lessons/"]'
+#     ).filter(has_text="Objectives")
+
+#     try:
+#         objectives.first.wait_for(
+#             state="visible",
+#             timeout=12000
+#         )
+
+#         print("Objectives found:", objectives.count())
+
+#         objectives.first.click(force=True)
+#         time.sleep(2.7)
+
+#     except Exception as e:
+#         print("Objectives not found:", e)
+#         # return
+
+#     # Wait for sidebar lessons to appear
+#     lessons = page.locator(
+#         'a.nav-sidebar__outline-item__link'
+#     )
+
+#     try:
+#         lessons.first.wait_for(
+#             state="visible",
+#             timeout=10000
+#         )
+#     except Exception as e:
+#         print("Sidebar lessons not found:", e)
+#         # return
+
+#     count = lessons.count()
+#     print("Lessons:", count)
+
+#     for i in range(count):
+#         lessons.nth(i).click(force=True)
+#         time.sleep(1.3)
+
+
+
+def click_lessons(page):
+    print(11111)
+
+    time.sleep(20)
+    # time.sleep(3)
+    # page=currently opened page
+    # context = browser.new_context(
+    #     storage_state="state.json"
+    # )
+    # url = page.url
+    # new_page = context.new_page()
+    # new_page.goto(url)
+
+    # print("Frames:", len(page.frames))
+    # for frame in page.frames:
+    #     print(frame.url)
+
+    # print("LI count:", page.locator(
+    #     'li.nav-sidebar__outline-list-item'
+    # ).count())
+
+    # return
+
+    # objectives = page.locator(
+    #     'a.overview-list-item__link[href*="#/lessons/"]'
+    # ).filter(has_text="a")
+
+    # try:
+    #     objectives.first.wait_for(
+    #         state="visible",
+    #         timeout=12000
+    #     )
+
+    #     print("Objectives found:", objectives.count())
+
+    #     objectives.first.click(force=True)
+    #     time.sleep(1.2)
+
+
+    # except Exception as e:
+    #     print("Objectives not found:", e)
+    #     # return
+
+    # Wait for sidebar lessons to appear
+    # time.sleep(3)
+
+    # try:
+    #     lesson = new_page.locator(
+    #         'li.nav-sidebar__outline-list-item'
+    #     ).first
+
+    #     lesson.wait_for(state="attached", timeout=10000)
+    #     lesson.locator('a[data-nav-item]').click(force=True, timeout=10000)
+
+    # except Exception as e:
+    #     print("Lesson click failed:", e)
+
+    # count = lesson.count()
+    # print("Lessons:", count)
+
+    # i=0
+
+    # time.sleep(3)
+
+    # while True:
+    #     new_page.mouse.wheel(0, 100000)
+    #     time.sleep(2)
+    #     continue_btn = new_page.locator('button[data-continue-btn]:visible')
+    #     next_lesson = new_page.locator(
+    #         'div.lesson-nav[data-next-lesson="true"] a[data-direction="next"]:visible'
+    #     )
+    #     new_page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+    #     # Try continue_btn first
+    #     try:
+    #         continue_btn.wait_for(state="visible", timeout=5000)
+    #         continue_btn.first.dispatch_event('click')
+    #         time.sleep(3)
+    #         continue
+    #     except Exception:
+    #         pass
+
+
+    #     # page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+
+
+    #     # Then try next_lesson
+    #     try:
+    #         next_lesson.wait_for(state="visible", timeout=5000)
+    #         next_lesson.first.dispatch_event('click')
+    #         time.sleep(3)
+    #         continue
+    #     except Exception:
+    #         pass
+
+    #     # Neither found — give up
+    #     # print('stopped')
+    #     i+=1
+    #     print(i)
+
+    #     if i > 5:
+    #         time.sleep(2)
+    #         print('stopped')
+    #         new_page.close()
+    #         break   
+
+
+
+
+
+
+
+
+
+
 with sync_playwright() as p:
     browser = p.firefox.launch(headless=False)
 
     context = browser.new_context(
         storage_state="state.json"
     )
+
+    context.set_extra_http_headers({
+        "Cache-Control": "no-cache"
+    })
 
     page = context.new_page()
 
@@ -455,7 +660,7 @@ with sync_playwright() as p:
 
     open_course(page)
 
-    time.sleep(4)
+    time.sleep(1000004)
 
     page.wait_for_selector(
         "#BodyContent_ifrmScormContent"
