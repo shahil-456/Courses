@@ -79,11 +79,16 @@ with sync_playwright() as p:
     # page.on("response", lambda response: save_data(response))
 
     page.goto(
-        "https://apps.arrs.org/abstractsam26",
+        "https://apps.arrs.org/AbstractsAM26/Main/Index?subspec=View%20All",
         wait_until="domcontentloaded",
-        timeout=30000
+        timeout=90000
     )
-    time.sleep(3)
+
+    page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+    time.sleep(1)
+
+
+    time.sleep(2)
     save_abstracts_as_pdf(page)
 
     time.sleep(20)
