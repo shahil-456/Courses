@@ -9,8 +9,7 @@ import requests
 
 from urllib.parse import urljoin, urlparse
 
-ROOT = r"D:\zip\Courses\scorm"
-
+ROOT = os.path.join(os.getcwd(), "scorm")
 
 
 
@@ -221,54 +220,64 @@ def download_html(name, url, folder_name):
 
 
 # Loop through all folders inside scorm
-for root, dirs, files in os.walk(ROOT):
 
-    if "New Folder" in dirs:
-        dirs.remove("New Folder")
+def assets():
 
-    if os.path.basename(root).lower() != "scormcontent":
-        continue
+    for root, dirs, files in os.walk(ROOT):
 
-    runtime_js = os.path.join(root, "runtime-data.js")
+        if "New Folder" in dirs:
+            dirs.remove("New Folder")
 
-    if not os.path.exists(runtime_js):
-        continue
+        if os.path.basename(root).lower() != "scormcontent":
+            continue
 
-    print("\nProcessing:")
-    print(root)
+        runtime_js = os.path.join(root, "runtime-data.js")
 
-    data = convert_runtime_data(runtime_js)
+        if not os.path.exists(runtime_js):
+            continue
 
-    if data is None:
-        continue
+        print("\nProcessing:")
+        print(root)
 
-    # Get 6961/111889 from:
-    # .../ScormContent/6961/111889/scormcontent
-    match = re.search(
-        r'ScormContent[\\/](\d+)[\\/](\d+)[\\/]scormcontent$',
-        root,
-        re.IGNORECASE
-    )
+        data = convert_runtime_data(runtime_js)
 
-    if os.path.exists(os.path.join(root, "done.json")):
-        continue
-        
-    if not match:
-        print("Path ID not found:", root)
-        continue
+        if data is None:
+            continue
 
-    asset_url = (
-        f"https://lms.sccm.org/ScormContent/"
-        f"{match.group(1)}/{match.group(2)}/"
-        f"scormcontent/assets/"
-    )
+        # Get 6961/111889 from:
+        # .../ScormContent/6961/111889/scormcontent
+        match = re.search(
+            r'ScormContent[\\/](\d+)[\\/](\d+)[\\/]scormcontent$',
+            root,
+            re.IGNORECASE
+        )
 
-    print("Asset URL:", asset_url)
+        if os.path.exists(os.path.join(root, "done.json")):
+            continue
 
-    # find_media(data, asset_url, root)
-    print(root)
-    find_html(data, asset_url, root)
+        if not match:
+            print("Path ID not found:", root)
+            continue
 
-    with open(os.path.join(root, "done.json"), "w", encoding="utf-8") as f:
-        json.dump({"done": True}, f)
+        asset_url = (
+            f"https://lms.sccm.org/ScormContent/"
+            f"{match.group(1)}/{match.group(2)}/"
+            f"scormcontent/assets/"
+        )
 
+        print("Asset URL:", asset_url)
+
+        # find_media(data, asset_url, root)
+        print(root)
+        find_html(data, asset_url, root)
+
+        with open(os.path.join(root, "done.json"), "w", encoding="utf-8") as f:
+            json.dump({"done": True}, f)
+
+
+
+while True:
+    assets()
+    time.sleep(3)
+
+    

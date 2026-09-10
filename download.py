@@ -9,7 +9,7 @@ import subprocess
 
 from urllib.parse import urljoin, urlparse
 
-# subprocess.Popen(["python", "check.py"])
+subprocess.Popen(["python", "asset.py"])
 
 
 def handle_request(request, title='demo'):
