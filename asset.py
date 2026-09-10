@@ -25,14 +25,14 @@ def save_data(response, folder_name):
 
     url = response.url
 
-    if response.status in [301, 302, 303, 307, 308]:
-        return
+    # if response.status in [301, 302, 303, 307, 308]:
+    #     return
 
     try:
         path = urlparse(url).path.lstrip("/")
 
         if not path:
-            return
+            path="assets1"
 
         # Only save actual SCORM assets
         # if "/scormcontent/assets/" not in path.lower():
@@ -75,14 +75,14 @@ def save_data(response, folder_name):
         # )
 
         print('path')
-        print(filepath)
+        # print(filepath)
 
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
         with open(filepath, "wb") as f:
             f.write(body)
 
-        print("Saved:", folder_name, path)
+        print("Saved:", filepath)
 
     except Exception as e:
         print("Failed:", url, e)
@@ -114,7 +114,7 @@ def convert_runtime_data(path):
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
-    print("Saved:", output_path)
+    # print("Saved:", output_path)
 
     return data
 
@@ -131,7 +131,7 @@ def download_asset(name, url, current_path):
     with open(filepath, "wb") as f:
         f.write(response.content)
 
-    print("Saved:", filepath)
+    # print("Saved:", filepath)
 
 
 def find_media(obj, base_url, current_path):
@@ -152,7 +152,7 @@ def find_media(obj, base_url, current_path):
             name = "/".join(obj.split("/")[-2:])
             url = base_url + obj
 
-            print(name)
+            # print(name)
 
             download_asset(name, url, current_path)
 
@@ -191,31 +191,30 @@ def find_html(obj, base_url,name):
 
 def download_html(name, url, folder_name):
 
+    handler = lambda response: save_data(response, folder_name)
+
     with sync_playwright() as playwright:
 
         browser = playwright.chromium.launch(headless=False)
 
-        context = browser.new_context(
-        )
+        context = browser.new_context()
 
         page = context.new_page()
-
-        handler = lambda response: save_data(response, folder_name)
 
         page.on("response", handler)
 
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=7000)
+            page.goto(url, wait_until="domcontentloaded", timeout=10000)
             time.sleep(5)
         except Exception as e:
             print("Page error:", e)
             time.sleep(10)
 
-        page.remove_listener("response", handler)
-
-        page.close()
-        context.close()
-        browser.close()
+        # page.remove_listener("response", handler)
+        time.sleep(20)
+        # page.close()
+        # context.close()
+        # browser.close()
 
 
 
@@ -237,7 +236,7 @@ def assets():
             continue
 
         print("\nProcessing:")
-        print(root)
+        # print(root)
 
         data = convert_runtime_data(runtime_js)
 
@@ -252,11 +251,11 @@ def assets():
             re.IGNORECASE
         )
 
-        if os.path.exists(os.path.join(root, "done.json")):
-            continue
+        # if os.path.exists(os.path.join(root, "done.json")):
+        #     continue
 
         if not match:
-            print("Path ID not found:", root)
+            # print("Path ID not found:", root)
             continue
 
         asset_url = (
@@ -265,10 +264,10 @@ def assets():
             f"scormcontent/assets/"
         )
 
-        print("Asset URL:", asset_url)
+        # print("Asset URL:", asset_url)
 
-        find_media(data, asset_url, root)
-        print(root)
+        # find_media(data, asset_url, root)
+        # print(root)
         time.sleep(2)
         find_html(data, asset_url, root)
 
@@ -279,6 +278,6 @@ def assets():
 
 while True:
     assets()
-    time.sleep(3)
+    time.sleep(100)
 
     
