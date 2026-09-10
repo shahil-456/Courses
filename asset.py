@@ -157,7 +157,7 @@ def find_media(obj, base_url, current_path):
 
             download_asset(name, url, current_path)
 
-            time.sleep(0.5)
+            time.sleep(0.3)
 
 
 
@@ -186,7 +186,7 @@ def find_html(obj, base_url,name):
             # print(url)
             download_html(name, url,fullroot)
 
-            time.sleep(0.8)
+            time.sleep(1)
 
 
 
@@ -207,7 +207,7 @@ def download_html(name, url, folder_name):
 
         try:
             page.goto(url, wait_until="domcontentloaded", timeout=7000)
-            time.sleep(10)
+            time.sleep(5)
         except Exception as e:
             print("Page error:", e)
             time.sleep(10)
@@ -250,6 +250,9 @@ for root, dirs, files in os.walk(ROOT):
         re.IGNORECASE
     )
 
+    if os.path.exists(os.path.join(root, "done.json")):
+        continue
+        
     if not match:
         print("Path ID not found:", root)
         continue
@@ -265,3 +268,7 @@ for root, dirs, files in os.walk(ROOT):
     # find_media(data, asset_url, root)
     print(root)
     find_html(data, asset_url, root)
+
+    with open(os.path.join(root, "done.json"), "w", encoding="utf-8") as f:
+        json.dump({"done": True}, f)
+

@@ -471,7 +471,7 @@ def click_assets(page):
         page.remove_listener("response", handler)
         time.sleep(1)
 
-
+    time.sleep(100)
 
 
 
