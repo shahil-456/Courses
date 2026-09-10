@@ -253,10 +253,10 @@ def open_course(page):
     page.goto(
         course_url,
         wait_until="domcontentloaded",
-        timeout=30000
+        timeout=50000
     )
 
-    time.sleep(2)
+    time.sleep(3)
     click_courses(page)
 
     # print(1)
@@ -285,21 +285,21 @@ def click_courses(page):
 
         page.wait_for_load_state(
             "domcontentloaded",
-            timeout=30000
+            timeout=100000
         )
 
         print("Opened:", i + 1)
-        time.sleep(3)
+        time.sleep(10)
 
         click_assets(page)
 
         page.goto(
             current_url,
             wait_until="domcontentloaded",
-            timeout=30000
+            timeout=50000
         )
 
-        time.sleep(2)
+        time.sleep(3)
 
 
 
@@ -391,9 +391,10 @@ def save_data(response, folder_name):
 
 
 def click_assets(page):
-    
-    global main_folder
 
+
+    global main_folder
+    time.sleep(10)    
     selector = "a.customActivityAssetLinkButton"
 
     count = page.locator(selector).count()
@@ -413,32 +414,36 @@ def click_assets(page):
         if item.get("saved") is True
     )
 
-    if count == saved_count:
-        return
+    print(count)
+    # if count == saved_count:
+    #     return
 
+    time.sleep(1)
 
     for i in range(count):
-        time.sleep(2)
+        time.sleep(3)
         folder_name = page.locator(
             "span[id*=lblAssetWithFileActivityName]"
         ).nth(i).inner_text().strip()
 
         folder_name = re.sub(r'[<>:"/\\|?*]', '_', folder_name)
 
-        if folder_name in data[main_folder]:
-            continue
+        # if folder_name in data[main_folder]:
+        #     continue
 
         handler = lambda response: save_data(response, folder_name)
 
         page.on("response", handler)
+        time.sleep(2)
 
-        page.locator(selector).nth(i).click(
-            force=True,
-            no_wait_after=True
-        )
 
-        time.sleep(5)
+        asset = page.locator("div.assetCardTooltip").nth(i)
 
+        # folder_name = asset.locator("span[id*=lblAssetWithFileActivityName]").inner_text().strip()
+
+        asset.locator("a.customActivityAssetLinkButton").click()
+
+        time.sleep(3)
 
         page.wait_for_load_state(
             "domcontentloaded",
@@ -446,15 +451,15 @@ def click_assets(page):
         )
 
         
-        time.sleep(5)
+        time.sleep(4)
 
         click_lessons(page)
 
-        time.sleep(5)
+        time.sleep(4)
 
         page.locator("#btnTitleBarReturnToLMS").click()
 
-        time.sleep(3)
+        time.sleep(180)
 
         if folder_name not in data[main_folder]:
 
@@ -471,7 +476,7 @@ def click_assets(page):
         page.remove_listener("response", handler)
         time.sleep(1)
 
-    time.sleep(100)
+    time.sleep(10)
 
 
 
@@ -644,9 +649,9 @@ with sync_playwright() as p:
         storage_state="state.json"
     )
 
-    context.set_extra_http_headers({
-        "Cache-Control": "no-cache"
-    })
+    # context.set_extra_http_headers({
+    #     "Cache-Control": "no-cache"
+    # })
 
     page = context.new_page()
 
@@ -655,12 +660,12 @@ with sync_playwright() as p:
     page.goto(
         "https://lms.sccm.org/Users/Home.aspx",
         wait_until="domcontentloaded",
-        timeout=20000
+        timeout=30000
     )
 
     open_course(page)
 
-    time.sleep(1000004)
+    time.sleep(10)
 
     page.wait_for_selector(
         "#BodyContent_ifrmScormContent"
