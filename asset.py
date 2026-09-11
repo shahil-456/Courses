@@ -274,11 +274,14 @@ def assets():
             dirs.remove("New Folder")
 
         if os.path.basename(root).lower() != "scormcontent":
+            print('001')
             continue
 
         runtime_js = os.path.join(root, "runtime-data.js")
 
         if not os.path.exists(runtime_js):
+            print('002')
+
             continue
 
         print("\nProcessing:")
@@ -287,6 +290,8 @@ def assets():
         data = convert_runtime_data(runtime_js)
 
         if data is None:
+            print('003')
+
             continue
 
         # Get 6961/111889 from:
@@ -312,7 +317,7 @@ def assets():
 
         # print("Asset URL:", asset_url)
 
-        find_media(data, asset_url, root)
+        # find_media(data, asset_url, root)
         # print(root)
         time.sleep(2)
         find_html(data, asset_url, root)
