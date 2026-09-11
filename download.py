@@ -682,9 +682,9 @@ with sync_playwright() as p:
 
     time.sleep(10)
 
-    page.wait_for_selector(
-        "#BodyContent_ifrmScormContent"
-    )
+    # page.wait_for_selector(
+    #     "#BodyContent_ifrmScormContent"
+    # )
 
     time.sleep(10)
 
