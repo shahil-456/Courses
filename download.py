@@ -432,29 +432,30 @@ def click_assets(page):
 
     time.sleep(1)
 
-    try:
-        for i in range(count):
+    for i in range(count):
+        try:
             time.sleep(3)
+
             folder_name = page.locator(
                 "span[id*=lblAssetWithFileActivityName]"
             ).nth(i).inner_text().strip()
 
             folder_name = re.sub(r'[<>:"/\\|?*]', '_', folder_name)
 
-            if folder_name in data:
+            if folder_name in data[main_folder]:
                 continue
 
             handler = lambda response: save_data(response, folder_name)
 
             page.on("response", handler)
-            time.sleep(2)
 
+            time.sleep(2)
 
             asset = page.locator("div.assetCardTooltip").nth(i)
 
-            # folder_name = asset.locator("span[id*=lblAssetWithFileActivityName]").inner_text().strip()
-            time.sleep(2)
-            asset.locator("a.customActivityAssetLinkButton").click(force=True)
+            asset.locator(
+                "a.customActivityAssetLinkButton"
+            ).click(force=True)
 
             time.sleep(3)
 
@@ -463,7 +464,6 @@ def click_assets(page):
                 timeout=150000
             )
 
-            
             time.sleep(4)
 
             click_lessons(page)
@@ -475,27 +475,23 @@ def click_assets(page):
             time.sleep(150)
 
             if folder_name not in data[main_folder]:
-
                 data[main_folder][folder_name] = {
                     "id": i,
                     "name": folder_name,
                     "saved": False
                 }
 
-                # Update saved.json immediately
                 with open("saved.json", "w", encoding="utf-8") as f:
                     json.dump(data, f, indent=4, ensure_ascii=False)
 
             page.remove_listener("response", handler)
-            time.sleep(1)
 
             time.sleep(10)
 
-
-    except Exception as e:
-        print("Click failed:", e)
-        time.sleep(2)
-        continue
+        except Exception as e:
+            print("Asset failed:", i, e)
+            time.sleep(2)
+            continue
 
 
 
