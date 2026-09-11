@@ -317,7 +317,7 @@ def assets():
 
         # print("Asset URL:", asset_url)
 
-        # find_media(data, asset_url, root)
+        find_media(data, asset_url, root)
         # print(root)
         time.sleep(2)
         find_html(data, asset_url, root)

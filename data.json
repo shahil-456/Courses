@@ -1,0 +1,18 @@
+{
+    "folders": [
+        {
+            "name": "Folder 1",
+            "files": [
+                "page1.html",
+                "page2.html"
+            ]
+        },
+        {
+            "name": "Folder 2",
+            "files": [
+                "page3.html",
+                "page4.html"
+            ]
+        }
+    ]
+}

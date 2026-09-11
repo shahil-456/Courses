@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Files</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-bold mb-6">Folders</h1>
+
+        <div id="folders" class="grid grid-cols-2 gap-4"></div>
+    </div>
+
+    <script>
+        fetch("data.json")
+            .then(response => response.json())
+            .then(data => {
+                const folders = document.getElementById("folders");
+
+                data.folders.forEach(folder => {
+
+                    const div = document.createElement("div");
+
+                    div.className =
+                        "bg-white rounded-lg shadow p-5 cursor-pointer hover:bg-gray-50";
+
+                    div.innerHTML = `
+                        <div class="text-lg font-semibold">
+                            📁 ${folder.name}
+                        </div>
+
+                        <div class="files hidden mt-4 space-y-2">
+                            ${folder.files.map(file => `
+                                <div
+                                    class="text-blue-600 hover:underline cursor-pointer"
+                                    onclick="event.stopPropagation(); window.open('${file}', '_blank')"
+                                >
+                                    📄 ${file}
+                                </div>
+                            `).join("")}
+                        </div>
+                    `;
+
+                    div.onclick = () => {
+                        div.querySelector(".files").classList.toggle("hidden");
+                    };
+
+                    folders.appendChild(div);
+                });
+            });
+    </script>
+
+</body>
+</html>
