@@ -17,7 +17,6 @@ main_folder='sha'
 
 
 
-
 # def save_data(response, folder_name):
 
 #     # return
@@ -240,7 +239,7 @@ def save_site(url, folder=''):
 
             with open(file_path, "wb") as f:
                 f.write(body)
-
+            time.sleep(0.2)
             print("Saved:", file_path)
 
         except Exception as e:
@@ -253,7 +252,7 @@ def save_site(url, folder=''):
         page.on("response", lambda response: save_response(response))
 
         page.goto(url, wait_until="networkidle")
-        page.wait_for_timeout(7000)
+        page.wait_for_timeout(8000)
         time.sleep(7)
 
 
@@ -317,6 +316,6 @@ def assets():
 
 while True:
     assets()
-    time.sleep(100)
+    time.sleep(10)
 
     

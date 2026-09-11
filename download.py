@@ -459,7 +459,7 @@ def click_assets(page):
 
         page.locator("#btnTitleBarReturnToLMS").click()
 
-        time.sleep(180)
+        time.sleep(150)
 
         if folder_name not in data[main_folder]:
 
