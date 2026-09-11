@@ -18,74 +18,74 @@ main_folder='sha'
 
 
 
-def save_data(response, folder_name):
+# def save_data(response, folder_name):
 
-    # return
-    global main_folder
+#     # return
+#     global main_folder
 
-    url = response.url
+#     url = response.url
 
-    # if response.status in [301, 302, 303, 307, 308]:
-    #     return
+#     # if response.status in [301, 302, 303, 307, 308]:
+#     #     return
 
-    try:
-        path = urlparse(url).path.lstrip("/")
+#     try:
+#         path = urlparse(url).path.lstrip("/")
 
-        if not path:
-            path="assets1"
+#         if not path:
+#             path="assets1"
 
-        # Only save actual SCORM assets
-        # if "/scormcontent/assets/" not in path.lower():
-        #     return
+#         # Only save actual SCORM assets
+#         # if "/scormcontent/assets/" not in path.lower():
+#         #     return
 
-        body = None
+#         body = None
 
-        # Retry because Firefox may temporarily fail to provide the body
-        for attempt in range(3):
-            try:
-                body = response.body()
-                break
-            except Exception as e:
-                if attempt == 2:
-                    print("Failed:", url, e)
-                    return
-                time.sleep(0.5)
+#         # Retry because Firefox may temporarily fail to provide the body
+#         for attempt in range(3):
+#             try:
+#                 body = response.body()
+#                 break
+#             except Exception as e:
+#                 if attempt == 2:
+#                     print("Failed:", url, e)
+#                     return
+#                 time.sleep(0.5)
 
-        if body is None:
-            return
+#         if body is None:
+#             return
 
-        prefix = re.match(
-            r'^ScormContent/\d+/\d+/scormcontent/assets/',
-            path,
-            re.IGNORECASE
-        )
+#         prefix = re.match(
+#             r'^ScormContent/\d+/\d+/scormcontent/assets/',
+#             path,
+#             re.IGNORECASE
+#         )
 
-        if prefix:
-            path = path[prefix.end():]
+#         if prefix:
+#             path = path[prefix.end():]
 
-        filepath = os.path.join(
-            folder_name,
-            "assets",
-            path
-        )
-        # filepath = os.path.join(
-        #     folder_name,
-        #     "assets",
-        #     path
-        # )
+#         filepath = os.path.join(
+#             folder_name,
+#             "assets",
+#             path
+#         )
+#         # filepath = os.path.join(
+#         #     folder_name,
+#         #     "assets",
+#         #     path
+#         # )
 
-        print('path')
-        # print(filepath)
+#         print('path')
+#         # print(filepath)
 
-        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+#         os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
-        with open(filepath, "wb") as f:
-            f.write(body)
+#         with open(filepath, "wb") as f:
+#             f.write(body)
 
-        print("Saved:", filepath)
+#         print("Saved:", filepath)
 
-    except Exception as e:
-        print("Failed:", url, e)
+#     except Exception as e:
+#         print("Failed:", url, e)
 
 
 
@@ -166,11 +166,11 @@ def find_html(obj, base_url,name):
 
     if isinstance(obj, dict):
         for value in obj.values():
-            find_html(value, base_url,name)
+            find_html(value, base_url,fullroot)
 
     elif isinstance(obj, list):
         for value in obj:
-            find_html(value, base_url,name)
+            find_html(value, base_url,fullroot)
 
     elif isinstance(obj, str):
         if re.search(r'\.(html)(?:[?#]|$)', obj, re.IGNORECASE):
@@ -183,39 +183,78 @@ def find_html(obj, base_url,name):
             print(name)
 
             # print(url)
-            download_html(name, url,fullroot)
+            save_site(url,fullroot)
 
             time.sleep(1)
 
 
 
-def download_html(name, url, folder_name):
+# def download_html(name, url, folder_name):
 
-    handler = lambda response: save_data(response, folder_name)
+#     # handler = lambda response: save_data(response, folder_name)
 
-    with sync_playwright() as playwright:
+#     with sync_playwright() as playwright:
 
-        browser = playwright.chromium.launch(headless=False)
+#         browser = playwright.chromium.launch(headless=False)
 
-        context = browser.new_context()
+#         context = browser.new_context()
 
-        page = context.new_page()
+#         page = context.new_page()
 
-        page.on("response", handler)
+#         # page.on("response", handler)
 
+#         try:
+#             page.goto(url, wait_until="domcontentloaded", timeout=10000)
+#             time.sleep(5)
+#         except Exception as e:
+#             print("Page error:", e)
+#             time.sleep(10)
+
+#         # page.remove_listener("response", handler)
+#         time.sleep(20)
+#         # page.close()
+#         # context.close()
+#         # browser.close()
+
+
+def save_site(url, folder=''):
+    def save_response(response):
         try:
-            page.goto(url, wait_until="domcontentloaded", timeout=10000)
-            time.sleep(5)
+            body = response.body()
+
+            path = urlparse(response.url).path
+
+            prefix = "/ScormContent/6951/188793/scormcontent"
+
+            if prefix in path:
+                path = path.split(prefix, 1)[1]
+
+            path = path.lstrip("/")
+
+            if not path or path.endswith("/"):
+                path += "index.html"
+
+            file_path = os.path.join(folder, path)
+
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+            with open(file_path, "wb") as f:
+                f.write(body)
+
+            print("Saved:", file_path)
+
         except Exception as e:
-            print("Page error:", e)
-            time.sleep(10)
+            print("Error:", e)
 
-        # page.remove_listener("response", handler)
-        time.sleep(20)
-        # page.close()
-        # context.close()
-        # browser.close()
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+        page = browser.new_page()
 
+        page.on("response", lambda response: save_response(response))
+
+        page.goto(url, wait_until="networkidle")
+        page.wait_for_timeout(7000)
+        time.sleep(7)
 
 
 # Loop through all folders inside scorm
@@ -251,8 +290,8 @@ def assets():
             re.IGNORECASE
         )
 
-        # if os.path.exists(os.path.join(root, "done.json")):
-        #     continue
+        if os.path.exists(os.path.join(root, "done.json")):
+            continue
 
         if not match:
             # print("Path ID not found:", root)
@@ -266,7 +305,7 @@ def assets():
 
         # print("Asset URL:", asset_url)
 
-        # find_media(data, asset_url, root)
+        find_media(data, asset_url, root)
         # print(root)
         time.sleep(2)
         find_html(data, asset_url, root)
