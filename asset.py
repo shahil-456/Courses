@@ -274,13 +274,13 @@ def assets():
             dirs.remove("New Folder")
 
         if os.path.basename(root).lower() != "scormcontent":
-            print('001')
+            # print('001')
             continue
 
         runtime_js = os.path.join(root, "runtime-data.js")
 
         if not os.path.exists(runtime_js):
-            print('002')
+            # print('002')
 
             continue
 

@@ -274,32 +274,44 @@ def click_courses(page):
 
     current_url = page.url
 
-    for i in range(1, count - 1):
+    try:
 
-        main_folder = re.sub(r'[<>:"/\\|?*]', '_', page.locator(selector).nth(i).inner_text()).strip()
+        for i in range(1, count - 1):
 
-        page.locator(selector).nth(i).click(
-            force=True,
-            no_wait_after=True
-        )
+            main_folder = re.sub(
+                r'[<>:"/\\|?*]',
+                '_',
+                page.locator(selector).nth(i).inner_text()
+            ).strip()
 
-        page.wait_for_load_state(
-            "domcontentloaded",
-            timeout=100000
-        )
+            page.locator(selector).nth(i).click(
+                force=True,
+                no_wait_after=True
+            )
 
-        print("Opened:", i + 1)
-        time.sleep(10)
+            page.wait_for_load_state(
+                "domcontentloaded",
+                timeout=100000
+            )
 
-        click_assets(page)
+            print("Opened:", i + 1)
+            time.sleep(10)
 
-        page.goto(
-            current_url,
-            wait_until="domcontentloaded",
-            timeout=50000
-        )
+            click_assets(page)
 
-        time.sleep(3)
+            page.goto(
+                current_url,
+                wait_until="domcontentloaded",
+                timeout=50000
+            )
+
+            time.sleep(3)
+
+    except Exception as e:
+        print("Click failed:", e)
+        time.sleep(2)
+
+ 
 
 
 
@@ -420,63 +432,70 @@ def click_assets(page):
 
     time.sleep(1)
 
-    for i in range(count):
-        time.sleep(3)
-        folder_name = page.locator(
-            "span[id*=lblAssetWithFileActivityName]"
-        ).nth(i).inner_text().strip()
+    try:
+        for i in range(count):
+            time.sleep(3)
+            folder_name = page.locator(
+                "span[id*=lblAssetWithFileActivityName]"
+            ).nth(i).inner_text().strip()
 
-        folder_name = re.sub(r'[<>:"/\\|?*]', '_', folder_name)
+            folder_name = re.sub(r'[<>:"/\\|?*]', '_', folder_name)
 
-        # if folder_name in data[main_folder]:
-        #     continue
+            if folder_name in data:
+                continue
 
-        handler = lambda response: save_data(response, folder_name)
+            handler = lambda response: save_data(response, folder_name)
 
-        page.on("response", handler)
+            page.on("response", handler)
+            time.sleep(2)
+
+
+            asset = page.locator("div.assetCardTooltip").nth(i)
+
+            # folder_name = asset.locator("span[id*=lblAssetWithFileActivityName]").inner_text().strip()
+            time.sleep(2)
+            asset.locator("a.customActivityAssetLinkButton").click(force=True)
+
+            time.sleep(3)
+
+            page.wait_for_load_state(
+                "domcontentloaded",
+                timeout=150000
+            )
+
+            
+            time.sleep(4)
+
+            click_lessons(page)
+
+            time.sleep(4)
+
+            page.locator("#btnTitleBarReturnToLMS").click()
+
+            time.sleep(150)
+
+            if folder_name not in data[main_folder]:
+
+                data[main_folder][folder_name] = {
+                    "id": i,
+                    "name": folder_name,
+                    "saved": False
+                }
+
+                # Update saved.json immediately
+                with open("saved.json", "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=4, ensure_ascii=False)
+
+            page.remove_listener("response", handler)
+            time.sleep(1)
+
+            time.sleep(10)
+
+
+    except Exception as e:
+        print("Click failed:", e)
         time.sleep(2)
-
-
-        asset = page.locator("div.assetCardTooltip").nth(i)
-
-        # folder_name = asset.locator("span[id*=lblAssetWithFileActivityName]").inner_text().strip()
-
-        asset.locator("a.customActivityAssetLinkButton").click()
-
-        time.sleep(3)
-
-        page.wait_for_load_state(
-            "domcontentloaded",
-            timeout=150000
-        )
-
-        
-        time.sleep(4)
-
-        click_lessons(page)
-
-        time.sleep(4)
-
-        page.locator("#btnTitleBarReturnToLMS").click()
-
-        time.sleep(150)
-
-        if folder_name not in data[main_folder]:
-
-            data[main_folder][folder_name] = {
-                "id": i,
-                "name": folder_name,
-                "saved": False
-            }
-
-            # Update saved.json immediately
-            with open("saved.json", "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=4, ensure_ascii=False)
-
-        page.remove_listener("response", handler)
-        time.sleep(1)
-
-    time.sleep(10)
+        continue
 
 
 
