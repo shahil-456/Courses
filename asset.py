@@ -220,15 +220,18 @@ def save_site(url, folder=''):
     def save_response(response):
         try:
             body = response.body()
-
             path = urlparse(response.url).path
 
-            prefix = "/ScormContent/6951/188793/scormcontent"
+            match = re.search(
+                r"/ScormContent/\d+/\d+/scormcontent/(.*)",
+                path,
+                re.IGNORECASE
+            )
 
-            if prefix in path:
-                path = path.split(prefix, 1)[1]
-
-            path = path.lstrip("/")
+            if match:
+                path = "assets/" + match.group(1)
+            else:
+                path = path.lstrip("/")
 
             if not path or path.endswith("/"):
                 path += "index.html"
@@ -239,11 +242,12 @@ def save_site(url, folder=''):
 
             with open(file_path, "wb") as f:
                 f.write(body)
-            time.sleep(0.2)
+
             print("Saved:", file_path)
 
         except Exception as e:
             print("Error:", e)
+
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
@@ -304,7 +308,7 @@ def assets():
 
         # print("Asset URL:", asset_url)
 
-        find_media(data, asset_url, root)
+        # find_media(data, asset_url, root)
         # print(root)
         time.sleep(2)
         find_html(data, asset_url, root)
