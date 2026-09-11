@@ -221,7 +221,6 @@ def save_site(url, folder=''):
         try:
             body = response.body()
             path = urlparse(response.url).path
-
             match = re.search(
                 r"/ScormContent/\d+/\d+/scormcontent/(.*)",
                 path,
@@ -229,9 +228,14 @@ def save_site(url, folder=''):
             )
 
             if match:
-                path = "assets/" + match.group(1)
+                path = match.group(1)
             else:
                 path = path.lstrip("/")
+
+            # if match:
+            #     path = "assets/" + match.group(1)
+            # else:
+            #     path = path.lstrip("/")
 
             if not path or path.endswith("/"):
                 path += "index.html"
@@ -308,7 +312,7 @@ def assets():
 
         # print("Asset URL:", asset_url)
 
-        # find_media(data, asset_url, root)
+        find_media(data, asset_url, root)
         # print(root)
         time.sleep(2)
         find_html(data, asset_url, root)
@@ -319,6 +323,7 @@ def assets():
 
 
 while True:
+    print('checking for new files')
     assets()
     time.sleep(10)
 
