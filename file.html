@@ -18,73 +18,22 @@
 
     </div>
 
+<script src="./paths.js"></script>
+
 <script>
-    let pathsData = {};
-
     window.addEventListener("load", () => {
-
-        const saved = '';
-
-        if (saved) {
-            alert(1);
-            pathsData = JSON.parse(saved);
-            displayFolders(pathsData);
-        } else {
- pathsData = {
-    "1. Vital Signs, Vital Drugs_ Optimizing Vasopressor Administration": {
-        "Dose, Deliver, Defend_ Pro_Con for Peripheral and Push Dose Vasopressors": {
-            "path": "scorm\\1. Vital Signs, Vital Drugs_ Optimizing Vasopressor Administration\\Dose, Deliver, Defend_ Pro_Con for Peripheral and Push Dose Vasopressors\\ScormContent\\6955\\208024\\scormcontent\\index.html"
-        },
-        "Is it Really the Kitchen Sink__ Evidence-Based Management of Refractory Vasoplegia": {
-            "path": "scorm\\1. Vital Signs, Vital Drugs_ Optimizing Vasopressor Administration\\Is it Really the Kitchen Sink__ Evidence-Based Management of Refractory Vasoplegia\\ScormContent\\6981\\208052\\scormcontent\\index.html"
-        },
-        "Mixed Signals_ A Pharmacologic Approach to Complex Shock States": {
-            "path": "scorm\\1. Vital Signs, Vital Drugs_ Optimizing Vasopressor Administration\\Mixed Signals_ A Pharmacologic Approach to Complex Shock States\\ScormContent\\6951\\208020\\scormcontent\\index.html"
-        }
-    },
-    "2. Stayin' Alive_ Supporting the Failing Heart with More than CPR": {
-        "Circuit-Safe_ Managing Anticoagulation in Mechanical Circulatory Support": {
-            "path": "scorm\\2. Stayin' Alive_ Supporting the Failing Heart with More than CPR\\Circuit-Safe_ Managing Anticoagulation in Mechanical Circulatory Support\\ScormContent\\6959\\208029\\scormcontent\\index.html"
-        },
-        "Pulse Check_ Critical Medication Updates in ACLS and PALS": {
-            "path": "scorm\\2. Stayin' Alive_ Supporting the Failing Heart with More than CPR\\Pulse Check_ Critical Medication Updates in ACLS and PALS\\ScormContent\\6957\\208026\\scormcontent\\index.html"
-        }
-    },
-    "3. Dose with Caution_ Navigating Renal Dosing & Nephrotoxin Risks": {
-        "Cleared for Safety_ Renal Dosing Strategies": {
-            "path": "scorm\\3. Dose with Caution_ Navigating Renal Dosing & Nephrotoxin Risks\\Cleared for Safety_ Renal Dosing Strategies\\ScormContent\\6961\\208031\\scormcontent\\index.html"
-        },
-        "The Pharmacist's Role in Nephrotoxin Stewardship": {
-            "path": "scorm\\3. Dose with Caution_ Navigating Renal Dosing & Nephrotoxin Risks\\The Pharmacist's Role in Nephrotoxin Stewardship\\ScormContent\\6963\\208033\\scormcontent\\index.html"
-        }
-    },
-    "4. Safe & Sound_ Elevating Pharmacotherapy Through Quality Practices": {
-        "NPO = No Possible Options_ What to Do When You Don't Know if Your GI Tract Works": {
-            "path": "scorm\\4. Safe & Sound_ Elevating Pharmacotherapy Through Quality Practices\\NPO = No Possible Options_ What to Do When You Don't Know if Your GI Tract Works\\ScormContent\\6967\\208037\\scormcontent\\index.html"
-        },
-        "Seizing Control_ Breaking Status Epilepticus with Smart Pharmacotherapy": {
-            "path": "scorm\\4. Safe & Sound_ Elevating Pharmacotherapy Through Quality Practices\\Seizing Control_ Breaking Status Epilepticus with Smart Pharmacotherapy\\ScormContent\\6965\\208035\\scormcontent\\index.html"
-        },
-        "Strategic Pharmacotherapy_ Protocol Development and Stakeholder Engagement for Clinical Excellence": {
-            "path": "scorm\\4. Safe & Sound_ Elevating Pharmacotherapy Through Quality Practices\\Strategic Pharmacotherapy_ Protocol Development and Stakeholder Engagement for Clinical Excellence\\ScormContent\\6969\\208039\\scormcontent\\index.html"
-        }
-    },
-    "5. Antidote Arsenal_ Pharmacologic Strategies in Toxicology & Overdose": {
-        "From Poison to Protocol_ Practical Application of Advanced Antidotes in the Critically Ill": {
-            "path": "scorm\\5. Antidote Arsenal_ Pharmacologic Strategies in Toxicology & Overdose\\From Poison to Protocol_ Practical Application of Advanced Antidotes in the Critically Ill\\ScormContent\\6983\\208054\\scormcontent\\index.html"
-        }
-    }
-};
-
+        
         localStorage.setItem(
             "pathsData",
             JSON.stringify(pathsData)
         );
 
         displayFolders(pathsData);
-        }
     });
+</script>
 
+<script>
+   
 
     function displayFolders(data) {
 

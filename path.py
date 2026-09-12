@@ -6,7 +6,6 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 SCORM = os.path.join(ROOT, "scorm")
 
 data = {}
-
 for root, dirs, files in os.walk(SCORM):
     if "index.html" in files and os.path.basename(root).lower() == "scormcontent":
 
@@ -24,7 +23,9 @@ for root, dirs, files in os.walk(SCORM):
             "path": rel
         }
 
-with open(os.path.join(ROOT, "paths.json"), "w", encoding="utf-8") as f:
+with open(os.path.join(ROOT, "paths.js"), "w", encoding="utf-8") as f:
+    f.write("const pathsData = ")
     json.dump(data, f, indent=4, ensure_ascii=False)
+    f.write(";")
 
-print("Saved:", os.path.join(ROOT, "paths.json"))
+print("Saved:", os.path.join(ROOT, "paths.js"))

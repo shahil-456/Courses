@@ -1,4 +1,4 @@
-{
+const pathsData = {
     "1. Vital Signs, Vital Drugs_ Optimizing Vasopressor Administration": {
         "Dose, Deliver, Defend_ Pro_Con for Peripheral and Push Dose Vasopressors": {
             "path": "scorm\\1. Vital Signs, Vital Drugs_ Optimizing Vasopressor Administration\\Dose, Deliver, Defend_ Pro_Con for Peripheral and Push Dose Vasopressors\\ScormContent\\6955\\208024\\scormcontent\\index.html"
@@ -42,4 +42,4 @@
             "path": "scorm\\5. Antidote Arsenal_ Pharmacologic Strategies in Toxicology & Overdose\\From Poison to Protocol_ Practical Application of Advanced Antidotes in the Critically Ill\\ScormContent\\6983\\208054\\scormcontent\\index.html"
         }
     }
-}
+};
