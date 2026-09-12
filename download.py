@@ -5,7 +5,7 @@ import os
 import requests
 import re
 import subprocess
-
+import asyncio
 
 from urllib.parse import urljoin, urlparse
 
@@ -343,10 +343,8 @@ def click_courses(page):
 #         print("Completed:", i + 1)
 
 
-
 def save_data(response, folder_name):
 
-    # return
     global main_folder
 
     url = response.url
@@ -360,21 +358,21 @@ def save_data(response, folder_name):
         if not path:
             return
 
-        # Only save actual SCORM assets
-        # if "/scormcontent/assets/" not in path.lower():
-        #     return
-
         body = None
 
-        # Retry because Firefox may temporarily fail to provide the body
         for attempt in range(3):
             try:
                 body = response.body()
                 break
+
+            except asyncio.CancelledError:
+                return
+
             except Exception as e:
                 if attempt == 2:
                     print("Failed:", url, e)
                     return
+
                 time.sleep(0.5)
 
         if body is None:
@@ -394,10 +392,11 @@ def save_data(response, folder_name):
 
         print("Saved:", folder_name, path)
 
+    except asyncio.CancelledError:
+        return
+
     except Exception as e:
         print("Failed:", url, e)
-
-
 
 
 
@@ -472,7 +471,7 @@ def click_assets(page):
 
             page.locator("#btnTitleBarReturnToLMS").click()
 
-            time.sleep(150)
+            time.sleep(600)
 
             if folder_name not in data[main_folder]:
                 data[main_folder][folder_name] = {
@@ -685,6 +684,7 @@ def run_course():
 for attempt in range(5):
     try:
         run_course()
+        time.sleep(50)
         break
 
     except Exception as e:
@@ -696,5 +696,6 @@ else:
 
 
 time.sleep(10)
+
 
 subprocess.Popen(["python", "path.py"])

@@ -117,21 +117,31 @@ def convert_runtime_data(path):
 
     return data
 
-
 def download_asset(name, url, current_path):
+
     folder = os.path.join(current_path, "assets")
     filepath = os.path.join(folder, name)
 
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
-    response = requests.get(url, timeout=30)
-    response.raise_for_status()
+    for attempt in range(3):
+        try:
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
 
-    with open(filepath, "wb") as f:
-        f.write(response.content)
+            with open(filepath, "wb") as f:
+                f.write(response.content)
 
-    # print("Saved:", filepath)
+            return
 
+        except requests.exceptions.RequestException as e:
+            print(f"Download failed ({attempt + 1}/3):", url)
+
+            if attempt == 2:
+                print("Giving up:", e)
+                return
+
+            time.sleep(2)
 
 def find_media(obj, base_url, current_path):
     if isinstance(obj, dict):
@@ -155,7 +165,7 @@ def find_media(obj, base_url, current_path):
 
             download_asset(name, url, current_path)
 
-            time.sleep(0.3)
+            time.sleep(0.8)
 
 
 
@@ -339,9 +349,9 @@ def assets():
 while True:
     print('checking for new files')
     assets()
-    time.sleep(10)
+    time.sleep(5)
 
 
 time.sleep(3)
 
-subprocess.Popen(["python", "path.py"])
+# subprocess.Popen(["python", "path.py"])
