@@ -341,4 +341,7 @@ while True:
     assets()
     time.sleep(10)
 
-    
+
+time.sleep(3)
+
+subprocess.Popen(["python", "path.py"])
