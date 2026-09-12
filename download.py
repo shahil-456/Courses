@@ -657,38 +657,44 @@ def click_lessons(page):
 
 
 
-with sync_playwright() as p:
-    browser = p.firefox.launch(headless=False)
+def run_course():
+    with sync_playwright() as p:
+        browser = p.firefox.launch(headless=False)
 
-    context = browser.new_context(
-        storage_state="state.json"
-    )
+        context = browser.new_context(
+            storage_state="state.json"
+        )
 
-    # context.set_extra_http_headers({
-    #     "Cache-Control": "no-cache"
-    # })
+        page = context.new_page()
 
-    page = context.new_page()
+        page.goto(
+            "https://lms.sccm.org/Users/Home.aspx",
+            wait_until="domcontentloaded",
+            timeout=30000
+        )
 
-    # page.on("response", lambda response: save_data(response))
+        open_course(page)
 
-    page.goto(
-        "https://lms.sccm.org/Users/Home.aspx",
-        wait_until="domcontentloaded",
-        timeout=30000
-    )
+        time.sleep(10)
 
-    open_course(page)
+        print("checking for new contents....")
 
-    time.sleep(10)
+        browser.close()
 
-    # page.wait_for_selector(
-    #     "#BodyContent_ifrmScormContent"
-    # )
 
-    time.sleep(10)
+for attempt in range(5):
+    try:
+        run_course()
+        break
 
-    print("\nFRAMES:")
+    except Exception as e:
+        print(f"Error: {e}")
+        print(f"Retrying... {attempt + 1}/5")
 
-    for i, frame in enumerate(page.frames):
-        print(i, frame.url)
+else:
+    print("Failed after 5 attempts.")
+
+
+time.sleep(10)
+
+subprocess.Popen(["python", "path.py"])
