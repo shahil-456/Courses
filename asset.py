@@ -9,7 +9,7 @@ import requests
 
 from urllib.parse import urljoin, urlparse
 
-ROOT = os.path.join(os.getcwd(), "scorm")
+ROOT = os.path.join(os.getcwd(), "My Courses")
 
 
 

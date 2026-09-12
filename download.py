@@ -381,7 +381,7 @@ def save_data(response, folder_name):
             return
 
         filepath = os.path.join(
-            "scorm",
+            "My Courses",
             main_folder,
             folder_name,
             path
