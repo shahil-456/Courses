@@ -274,7 +274,7 @@ def save_site(url, folder=''):
         page.on("response", lambda response: save_response(response))
 
         page.goto(url, wait_until="networkidle")
-        page.wait_for_timeout(8000)
+        page.wait_for_timeout(9000)
         time.sleep(7)
 
 

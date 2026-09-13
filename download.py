@@ -400,13 +400,16 @@ def save_data(response, folder_name):
 
 
 
-
 def click_assets(page):
 
-
     global main_folder
-    time.sleep(10)    
+
+    time.sleep(10)
+
     selector = "a.customActivityAssetLinkButton"
+
+    # Save current LMS URL
+    current_url1 = page.url
 
     count = page.locator(selector).count()
 
@@ -421,42 +424,59 @@ def click_assets(page):
         data[main_folder] = {}
 
     saved_count = sum(
-        1 for item in data[main_folder].values()
+        1
+        for item in data[main_folder].values()
         if item.get("saved") is True
     )
 
-    print(count)
+    print("Asset count:", count)
+    print("Saved count:", saved_count)
+
     # if count == saved_count:
     #     return
 
     time.sleep(1)
 
-    for i in range(count):
+    for i in range(15):
+
+        handler = None
+
         try:
-            time.sleep(3)
+            time.sleep(10)
 
             folder_name = page.locator(
                 "span[id*=lblAssetWithFileActivityName]"
             ).nth(i).inner_text().strip()
 
-            folder_name = re.sub(r'[<>:"/\\|?*]', '_', folder_name)
+            folder_name = re.sub(
+                r'[<>:"/\\|?*]',
+                '_',
+                folder_name
+            )
 
             if folder_name in data[main_folder]:
                 continue
 
-            handler = lambda response: save_data(response, folder_name)
+            handler = lambda response: save_data(
+                response,
+                folder_name
+            )
 
             page.on("response", handler)
 
             time.sleep(2)
 
-            asset = page.locator("div.assetCardTooltip").nth(i)
+            asset = page.locator(
+                "div.assetCardTooltip"
+            ).nth(i)
 
             asset.locator(
                 "a.customActivityAssetLinkButton"
-            ).click(force=True)
+            ).click(
+                force=True
+            )
 
-            time.sleep(3)
+            time.sleep(5)
 
             page.wait_for_load_state(
                 "domcontentloaded",
@@ -469,29 +489,82 @@ def click_assets(page):
 
             time.sleep(4)
 
-            page.locator("#btnTitleBarReturnToLMS").click()
+            page.locator(
+                "#btnTitleBarReturnToLMS"
+            ).click()
 
-            time.sleep(600)
+            time.sleep(15)
 
             if folder_name not in data[main_folder]:
+
                 data[main_folder][folder_name] = {
                     "id": i,
                     "name": folder_name,
                     "saved": False
                 }
 
-                with open("saved.json", "w", encoding="utf-8") as f:
-                    json.dump(data, f, indent=4, ensure_ascii=False)
+                with open(
+                    "saved.json",
+                    "w",
+                    encoding="utf-8"
+                ) as f:
+                    json.dump(
+                        data,
+                        f,
+                        indent=4,
+                        ensure_ascii=False
+                    )
 
-            page.remove_listener("response", handler)
+            # Remove response listener after successful asset
+            if handler:
+                page.remove_listener(
+                    "response",
+                    handler
+                )
+                handler = None
+
+            print("Waiting 500 seconds...")
+
+            time.sleep(500)
 
             time.sleep(10)
 
         except Exception as e:
-            print("Asset failed:", i, e)
-            time.sleep(2)
-            continue
 
+            print("Asset failed:", i, e)
+
+            time.sleep(2)
+
+            # Remove listener if error happened
+            if handler:
+                try:
+                    page.remove_listener(
+                        "response",
+                        handler
+                    )
+                except Exception:
+                    pass
+
+                handler = None
+
+            # Return to original LMS page
+            try:
+                if(current_url1):
+                    page.goto(
+                        current_url1,
+                        wait_until="domcontentloaded",
+                        timeout=150000
+                    )
+
+                time.sleep(2)
+
+            except Exception as goto_error:
+                print(
+                    "Failed to return to LMS:",
+                    goto_error
+                )
+
+            continue
 
 
 
