@@ -3,7 +3,7 @@ import json
 
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-SCORM = os.path.join(ROOT, "scorm")
+SCORM = os.path.join(ROOT, "My Courses")
 
 data = {}
 for root, dirs, files in os.walk(SCORM):

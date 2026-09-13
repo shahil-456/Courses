@@ -8,6 +8,7 @@ import time
 import requests
 
 from urllib.parse import urljoin, urlparse
+from urllib.parse import  unquote
 
 ROOT = os.path.join(os.getcwd(), "My Courses")
 
