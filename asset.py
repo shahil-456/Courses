@@ -121,7 +121,7 @@ def convert_runtime_data(path):
 def download_asset(name, url, current_path):
 
     folder = os.path.join(current_path, "assets")
-    filepath = os.path.join(folder, unquote(name))
+    filepath = os.path.join(folder, unquote(urlparse(name).path))
 
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
 

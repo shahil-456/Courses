@@ -278,6 +278,9 @@ def click_courses(page):
 
         for i in range(1, count - 1):
 
+            if(i != count-2):
+                continue
+
             main_folder = re.sub(
                 r'[<>:"/\\|?*]',
                 '_',
