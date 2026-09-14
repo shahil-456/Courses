@@ -348,10 +348,15 @@ def assets():
             time.sleep(2)
             continue
 
-while True:
-    print('checking for new files')
+start_time = time.time()
+
+while time.time() - start_time < 500000:
+
+    print("checking for new files")
+
     assets()
-    time.sleep(5)
+
+    time.sleep(8)
 
 
 time.sleep(3)

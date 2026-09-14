@@ -9,7 +9,7 @@ import asyncio
 
 from urllib.parse import urljoin, urlparse
 
-subprocess.Popen(["python", "asset.py"])
+process = subprocess.Popen(["python", "asset.py"])
 
 
 def handle_request(request, title='demo'):
@@ -265,27 +265,81 @@ def open_course(page):
 main_folder = ""
 
 
+
+
 def click_courses(page):
+    print('-----')
     global main_folder
 
     selector = "a.factor360Hyperlink"
 
+    with open("saved.json", "r", encoding="utf-8") as f:
+        saved_data = json.load(f)
+
     count = page.locator(selector).count()
 
+
     current_url = page.url
+
+    data_arr = []
+
+    wrappers = page.locator("div.childMultiPartLearningActivityItemTooltip")
+
+    for i in range(wrappers.count()):
+
+        wrapper = wrappers.nth(i)
+
+        name = wrapper.locator(
+            "a.factor360Hyperlink"
+        ).inner_text().strip()
+
+        count_1 = wrapper.locator(
+            "div.progress-bar.progress-bar-info.factor360-progress-bar-separator"
+        ).count()
+
+        # clean name
+        name = re.sub(r'[<>:"/\\|?*]', '_', name)
+
+        data_arr.append({
+            "name": name,
+            "count": count_1
+        })
+
+    # print(data_arr)
+    # time.sleep(100)
 
     try:
 
         for i in range(1, count - 1):
 
-            if(i != count-2):
-                continue
+            # if(i != count-2):
+            #     continue
 
             main_folder = re.sub(
                 r'[<>:"/\\|?*]',
                 '_',
                 page.locator(selector).nth(i).inner_text()
             ).strip()
+
+
+            key_count = len(saved_data.get(main_folder, {}))
+
+            print(main_folder, key_count)
+            key_count1 = 0
+
+            for item in data_arr:
+                if item["name"] == main_folder:
+                    key_count1 = item["count"]
+                    break
+            print('new')        
+            print(key_count1)
+
+            # time.sleep(200)
+
+            if(key_count == key_count1):
+                continue
+
+            # time.sleep(1000)
 
             page.locator(selector).nth(i).click(
                 force=True,
@@ -426,11 +480,7 @@ def click_assets(page):
     if main_folder not in data:
         data[main_folder] = {}
 
-    saved_count = sum(
-        1
-        for item in data[main_folder].values()
-        if item.get("saved") is True
-    )
+    saved_count = len(data[main_folder])
 
     print("Asset count:", count)
     print("Saved count:", saved_count)
@@ -771,7 +821,13 @@ else:
     print("Failed after 5 attempts.")
 
 
-time.sleep(10)
+time.sleep(1000)
 
 
 subprocess.Popen(["python", "path.py"])
+
+try:
+    process.terminate()
+    process.wait(timeout=5)
+except:
+    process.kill()
