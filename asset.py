@@ -121,7 +121,7 @@ def convert_runtime_data(path):
 def download_asset(name, url, current_path):
 
     folder = os.path.join(current_path, "assets")
-    filepath = os.path.join(folder, name)
+    filepath = os.path.join(folder, unquote(name))
 
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
@@ -144,6 +144,7 @@ def download_asset(name, url, current_path):
 
             time.sleep(2)
 
+
 def find_media(obj, base_url, current_path):
     if isinstance(obj, dict):
         for value in obj.values():
@@ -155,7 +156,7 @@ def find_media(obj, base_url, current_path):
 
     elif isinstance(obj, str):
         if re.search(
-            r'\.(png|jpg|jpeg|mp3)(?:[?#]|$)',
+            r'\.(png|jpg|jpeg|mp3|mp4)(?:[?#]|$)',
             obj,
             re.IGNORECASE
         ):
@@ -255,7 +256,7 @@ def save_site(url, folder=''):
             if not path or path.endswith("/"):
                 path += "index.html"
 
-            file_path = os.path.join(folder, path)
+            file_path = os.path.join(folder, unquote(path))
 
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
