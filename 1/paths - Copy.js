@@ -37,7 +37,7 @@ const pathsData = {
             "path": "My Courses\\4. Safe & Sound_ Elevating Pharmacotherapy Through Quality Practices\\Strategic Pharmacotherapy_ Protocol Development and Stakeholder Engagement for Clinical Excellence\\ScormContent\\6969\\227269\\scormcontent\\index.html"
         }
     },
-    "5. Antidote Arsenal_ Pharmacologic Strategies in Toxicology & Overdose": {
+        "5. Antidote Arsenal_ Pharmacologic Strategies in Toxicology & Overdose": {
         "From Poison to Protocol_ Practical Application of Advanced Antidotes in the Critically Ill": {
             "path": "My Courses\\5. Antidote Arsenal_ Pharmacologic Strategies in Toxicology & Overdose\\From Poison to Protocol_ Practical Application of Advanced Antidotes in the Critically Ill\\ScormContent\\6983\\265749\\scormcontent\\index.html"
         },

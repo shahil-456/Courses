@@ -1,0 +1,84 @@
+{
+    "Course Name": {
+        "Asset 1": {
+            "id": 0,
+            "name": "Asset 1",
+            "saved": false
+        },
+        "Asset 2": {
+            "id": 1,
+            "name": "Asset 2",
+            "saved": false
+        }
+    },
+    "1. Vital Signs, Vital Drugs_ Optimizing Vasopressor Administration": {
+        "Mixed Signals_ A Pharmacologic Approach to Complex Shock States": {
+            "id": 0,
+            "name": "Mixed Signals_ A Pharmacologic Approach to Complex Shock States",
+            "saved": false
+        },
+        "Is it Really the Kitchen Sink__ Evidence-Based Management of Refractory Vasoplegia": {
+            "id": 1,
+            "name": "Is it Really the Kitchen Sink__ Evidence-Based Management of Refractory Vasoplegia",
+            "saved": false
+        },
+        "Dose, Deliver, Defend_ Pro_Con for Peripheral and Push Dose Vasopressors": {
+            "id": 2,
+            "name": "Dose, Deliver, Defend_ Pro_Con for Peripheral and Push Dose Vasopressors",
+            "saved": false
+        }
+    },
+    "2. Stayin' Alive_ Supporting the Failing Heart with More than CPR": {
+        "Pulse Check_ Critical Medication Updates in ACLS and PALS": {
+            "id": 0,
+            "name": "Pulse Check_ Critical Medication Updates in ACLS and PALS",
+            "saved": false
+        },
+        "Circuit-Safe_ Managing Anticoagulation in Mechanical Circulatory Support": {
+            "id": 1,
+            "name": "Circuit-Safe_ Managing Anticoagulation in Mechanical Circulatory Support",
+            "saved": false
+        }
+    },
+    "3. Dose with Caution_ Navigating Renal Dosing & Nephrotoxin Risks": {
+        "Cleared for Safety_ Renal Dosing Strategies": {
+            "id": 0,
+            "name": "Cleared for Safety_ Renal Dosing Strategies",
+            "saved": false
+        },
+        "The Pharmacist's Role in Nephrotoxin Stewardship": {
+            "id": 1,
+            "name": "The Pharmacist's Role in Nephrotoxin Stewardship",
+            "saved": false
+        }
+    },
+    "4. Safe & Sound_ Elevating Pharmacotherapy Through Quality Practices": {
+        "Seizing Control_ Breaking Status Epilepticus with Smart Pharmacotherapy": {
+            "id": 0,
+            "name": "Seizing Control_ Breaking Status Epilepticus with Smart Pharmacotherapy",
+            "saved": false
+        },
+        "NPO = No Possible Options_ What to Do When You Don't Know if Your GI Tract Works": {
+            "id": 1,
+            "name": "NPO = No Possible Options_ What to Do When You Don't Know if Your GI Tract Works",
+            "saved": false
+        },
+        "Strategic Pharmacotherapy_ Protocol Development and Stakeholder Engagement for Clinical Excellence": {
+            "id": 2,
+            "name": "Strategic Pharmacotherapy_ Protocol Development and Stakeholder Engagement for Clinical Excellence",
+            "saved": false
+        }
+    },
+    "5. Antidote Arsenal_ Pharmacologic Strategies in Toxicology & Overdose": {
+        "From Poison to Protocol_ Practical Application of Advanced Antidotes in the Critically Ill": {
+            "id": 0,
+            "name": "From Poison to Protocol_ Practical Application of Advanced Antidotes in the Critically Ill",
+            "saved": false
+        },
+        "What To Do When Medicine Hurts_ Updates on the Management of Drug-Induced Liver Injury (DILI)": {
+            "id": 1,
+            "name": "What To Do When Medicine Hurts_ Updates on the Management of Drug-Induced Liver Injury (DILI)",
+            "saved": false
+        }
+    }
+}
