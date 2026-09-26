@@ -89,14 +89,14 @@ def process_videos(page, context, mainfolder='demo1', folder='1ks', name='1as'):
             # with open(file, "w", encoding="utf-8") as f:
             #     json.dump(names, f, indent=4, ensure_ascii=False)
 
-            def handle(response):
-                handle_request(
-                    response,
-                    context,
-                    mainfolder,
-                    folder,
-                    name
-                )
+            # def handle(response):
+            #     handle_request(
+            #         response,
+            #         context,
+            #         mainfolder,
+            #         folder,
+            #         name
+            #     )
 
             page.on("response", handle)
 
@@ -124,8 +124,8 @@ def process_videos(page, context, mainfolder='demo1', folder='1ks', name='1as'):
 
             time.sleep(2)
 
-            page.remove_listener("response", handle)
-            time.sleep(300)
+            # page.remove_listener("response", handle)
+            time.sleep(10)
 
 
         except Exception as e:
@@ -138,6 +138,8 @@ def process_videos(page, context, mainfolder='demo1', folder='1ks', name='1as'):
 
             continue
 
+
+
 downloaded = set()
 
 download_lock = threading.Lock()
@@ -149,6 +151,13 @@ def handle_request(response, context, mainfolder='demo1', folder='demo2', name='
             if response.url in downloaded:
                 return
             name = re.sub(r'[<>:"/\\|?*]', '_', name)
+
+            with open("name.json", "r", encoding="utf-8") as f:
+                names = json.load(f)
+
+            if name_og in names:
+                return
+            
             downloaded.add(response.url)
 
             with download_lock:
@@ -156,21 +165,14 @@ def handle_request(response, context, mainfolder='demo1', folder='demo2', name='
 
                 time.sleep(3)
 
-                result = context.request.get(
-                    response.url,
-                    timeout=1000000
-                )
+                # if result.ok:
+                path = os.path.join("videos", mainfolder, folder, f"{name}.mp4")
+                download_mp4(response.url, path)
 
-                if result.ok:
-                    path = os.path.join("videos", mainfolder, folder, f"{name}.mp4")
-                    os.makedirs(os.path.dirname(path), exist_ok=True)
-                    add_name(name_og)
-                    time.sleep(2)
-                    with open(path, "wb") as f:
-                        f.write(result.body())
-
-                    
-                    print("Saved:", path)
+                add_name(name_og)
+                time.sleep(2)
+                
+                print("Saved:", path)
 
     except Exception as e:
         print("MP4 save failed:", e)
@@ -223,6 +225,27 @@ def click_next_pagination(page):
 
 # while click_next_pagination(page):
 #     pass
+
+
+
+
+
+
+def download_mp4(url, path):
+    with requests.get(url, stream=True, timeout=1000) as r:
+        r.raise_for_status()
+
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+
+        with open(path, "wb") as f:
+            for chunk in r.iter_content(chunk_size=1024 * 1024):
+                if chunk:
+                    f.write(chunk)
+
+    print("Saved:", path)
+
+
+
 
 
 url='https://learn.aslms.org/catalog'
@@ -296,51 +319,109 @@ def open_product_items(page, context):
 
 
 
+def process_assets(page, context, mainfolder='demo1', folder='demo2'):
+    time.sleep(12)
+    assets = page.locator("div.assetCardTooltip")
 
+    for i in range(assets.count()):
+        try:
+            asset = assets.nth(i)
+
+            name = asset.locator(
+                "span[id*='lblAssetWithFileActivityName']"
+            ).inner_text().strip()
+
+            if name_exists(name):
+                print("Already exists, skipping:", name)
+                continue
+
+            print(f"Opening: {name}")
+
+            def handle(response):
+                handle_request(
+                    response,
+                    context,
+                    mainfolder,
+                    folder,
+                    name
+                )
+
+            page.on("response", handle)
+
+            asset.locator("a.customActivityAssetLinkButton").click()
+
+            time.sleep(7)
+
+            close = page.locator(
+                "a.fancybox-close[title='Close']:visible"
+            )
+
+            if close.count():
+                close.last.click()
+
+            time.sleep(1)
+
+            page.remove_listener("response", handle)
+            time.sleep(10000)
+
+        except Exception as e:
+            print(f"Asset {i + 1} error:", e)
+
+            try:
+                print('canec')
+                page.remove_listener("response", handle)
+            except:
+                pass
+
+            continue
 
 
 with sync_playwright() as p:
 
-    url = 'https://learn.aslms.org/products/ce-2026-aslms-45th-annual-conference-recordings-nursing-allied-health?packages%5B%5D=255282&in_package=255282&sort_by=package_order&ref=package&ref_id=255282'
+    url = 'https://learn.aace.com/Users/LoadUserLearningActivityAsset.aspx?UserLearningActivityID=r%2bunNzf%2b8L0u1IXOVro6BQ%3d%3d&phase=d8Qn8XiodgLy8iy5x2Fzuw%3d%3d'
 
     browser = p.firefox.launch(headless=False)
     context = browser.new_context(storage_state="state.json")
     page = context.new_page()
 
-    # page.goto(url, timeout=10000)
+    page.goto(url, timeout=10000)
+    
 
-    time.sleep(3)
+    time.sleep(7)
+
+
+    process_assets(page, context, mainfolder='demo1', folder='demo2')
 
     #if i manually navigate to other page after page loads,which page process videos do, difined above page or navigated new page?
 
     # process_videos(page, context,mainfolder='demo1', folder='1ks', name='test')
 
 
-    with open("names.json", "r", encoding="utf-8") as f:
-        data = json.load(f)
+    # with open("names.json", "r", encoding="utf-8") as f:
+    #     data = json.load(f)
 
-    for mainfolder, folders in data.items():
-        for folder, folder_data in folders.items():
-            time.sleep(5)
-            url = folder_data["url"]
+    # for mainfolder, folders in data.items():
+    #     for folder, folder_data in folders.items():
+    #         time.sleep(5)
+    #         url = folder_data["url"]
 
-            print(f"Opening: {mainfolder} / {folder}")
-            print(url)
+    #         print(f"Opening: {mainfolder} / {folder}")
+    #         print(url)
 
-            try:
-                page.goto(url, timeout=10000)
+    #         try:
+    #             page.goto(url, timeout=10000)
 
-                process_videos(
-                    page,
-                    context,
-                    mainfolder=mainfolder,
-                    folder=folder,
-                    name="test"
-                )
+    #             process_videos(
+    #                 page,
+    #                 context,
+    #                 mainfolder=mainfolder,
+    #                 folder=folder,
+    #                 name="test"
+    #             )
 
-            except Exception as e:
-                print(f"Error: {mainfolder} / {folder}:", e)
-                continue
+    #         except Exception as e:
+    #             print(f"Error: {mainfolder} / {folder}:", e)
+    #             continue
 
 
 
