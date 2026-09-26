@@ -7,6 +7,7 @@ import requests
 import re
 import subprocess
 import asyncio
+import threading
 
 
 main_folder = ""
@@ -15,52 +16,54 @@ name = ""
 
 current_name = None
 
+
+def add_name(name):
+    file = "name.json"
+
+    if os.path.exists(file):
+        with open(file, "r", encoding="utf-8") as f:
+            names = json.load(f)
+    else:
+        names = []
+
+    names.append(name)
+
+    with open(file, "w", encoding="utf-8") as f:
+        json.dump(names, f, indent=4, ensure_ascii=False)
+
 # def on_response(response):
 #     if current_name:
 #         handle_request(response, context, mainfolder, folder, current_name)
 
 # page.on("response", on_response)
 
-
 def process_videos(page, context, mainfolder='demo1', folder='1ks', name='1as'):
-    # page.on("response", lambda response: handle_request(
-    #     response, context, mainfolder, folder, name
-    # ))
 
     try:
         page.locator("a.show_as_default[href^='#product_tab_contents']").click()
     except Exception as e:
         print("Contents click error:", e)
 
-    time.sleep(1)
+    time.sleep(3)
 
     try:
         videos = page.locator("#assets .asset[data-type='video']")
 
         video = videos.nth(0)
-
         title = video.locator(".title")
-
         title.evaluate("(el) => el.click()")
 
     except Exception as e:
         print("Video open error:", e)
 
-    time.sleep(1)
+    time.sleep(2)
 
     for i in range(videos.count()):
         try:
-
             video = videos.nth(i)
             title = video.locator(".title")
 
             name = video.locator(".assetTitle").inner_text().strip()
-            current_name = name
-
-            page.on("response", lambda response, name=name: handle_request(
-                response, context, mainfolder, folder, name
-            ))
-            
 
             print(name)
 
@@ -72,13 +75,31 @@ def process_videos(page, context, mainfolder='demo1', folder='1ks', name='1as'):
             else:
                 names = []
 
-            if name not in names:
-                names.append(name)
+            # if name not in names:
+            #     names.append(name)
 
-                with open(file, "w", encoding="utf-8") as f:
-                    json.dump(names, f, indent=4, ensure_ascii=False)
+            #     with open(file, "w", encoding="utf-8") as f:
+            #         json.dump(names, f, indent=4, ensure_ascii=False)
 
-            # Open accordion using JavaScript
+            if name in names:
+                continue
+
+            names.append(name)
+
+            # with open(file, "w", encoding="utf-8") as f:
+            #     json.dump(names, f, indent=4, ensure_ascii=False)
+
+            def handle(response):
+                handle_request(
+                    response,
+                    context,
+                    mainfolder,
+                    folder,
+                    name
+                )
+
+            page.on("response", handle)
+
             title.evaluate("(el) => el.click()")
             time.sleep(2)
 
@@ -86,15 +107,14 @@ def process_videos(page, context, mainfolder='demo1', folder='1ks', name='1as'):
 
             if not button.is_visible():
                 print(f"Video {i + 1}: View Video not visible")
+                page.remove_listener("response", handle)
                 continue
 
             print(f"Opening video {i + 1}")
             button.evaluate("(el) => el.click()")
 
-            # Allow video request/download to happen
-            time.sleep(200)
+            time.sleep(10)
 
-            # Close visible modal
             close = page.locator(
                 "button.close[data-dismiss='modal']:visible"
             ).last
@@ -104,37 +124,53 @@ def process_videos(page, context, mainfolder='demo1', folder='1ks', name='1as'):
 
             time.sleep(2)
 
+            page.remove_listener("response", handle)
+            time.sleep(300)
+
+
         except Exception as e:
             print(f"Video {i + 1} error:", e)
+
+            try:
+                page.remove_listener("response", handle)
+            except:
+                pass
+
             continue
 
 downloaded = set()
 
+download_lock = threading.Lock()
+
 def handle_request(response, context, mainfolder='demo1', folder='demo2', name='test'):
     try:
         if response.request.resource_type == "media" and ".mp4" in response.url.lower():
-
+            name_og=name    
             if response.url in downloaded:
                 return
-
+            name = re.sub(r'[<>:"/\\|?*]', '_', name)
             downloaded.add(response.url)
 
-            print("Downloading:", response.url)
+            with download_lock:
+                print("Downloading:", response.url)
 
-            time.sleep(3)
-            result = context.request.get(
-                response.url,
-                timeout=1000000
-            )
+                time.sleep(3)
 
-            if result.ok:
-                path = os.path.join(mainfolder, folder, f"{name}.mp4")
-                os.makedirs(os.path.dirname(path), exist_ok=True)
+                result = context.request.get(
+                    response.url,
+                    timeout=1000000
+                )
 
-                with open(path, "wb") as f:
-                    f.write(result.body())
+                if result.ok:
+                    path = os.path.join("videos", mainfolder, folder, f"{name}.mp4")
+                    os.makedirs(os.path.dirname(path), exist_ok=True)
+                    add_name(name_og)
+                    time.sleep(2)
+                    with open(path, "wb") as f:
+                        f.write(result.body())
 
-                print("Saved:", path)
+                    
+                    print("Saved:", path)
 
     except Exception as e:
         print("MP4 save failed:", e)
@@ -285,7 +321,7 @@ with sync_playwright() as p:
 
     for mainfolder, folders in data.items():
         for folder, folder_data in folders.items():
-
+            time.sleep(5)
             url = folder_data["url"]
 
             print(f"Opening: {mainfolder} / {folder}")
