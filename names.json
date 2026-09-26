@@ -1,0 +1,28 @@
+{
+    "main_folder_1": {
+        "folder_1": {
+            "url": "https://example.com/folder1",
+            "names": [
+                "name_1",
+                "name_2",
+                "name_3"
+            ]
+        },
+        "folder_2": {
+            "url": "https://example.com/folder2",
+            "names": [
+                "name_4",
+                "name_5"
+            ]
+        }
+    },
+    "main_folder_2": {
+        "folder_1": {
+            "url": "https://example.com/folder3",
+            "names": [
+                "name_6",
+                "name_7"
+            ]
+        }
+    }
+}
