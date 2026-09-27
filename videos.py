@@ -366,7 +366,7 @@ def process_assets(page, context, mainfolder='demo1', folder='demo2'):
 
             page.remove_listener("response", handle)
 
-            time.sleep(100)
+            time.sleep(120)
 
         except Exception as e:
             print(f"Asset {i + 1} error:", e)
@@ -382,22 +382,54 @@ def process_assets(page, context, mainfolder='demo1', folder='demo2'):
 
 
 
-with sync_playwright() as p:
+# with sync_playwright() as p:
 
-    url = 'https://learn.aace.com/Users/LoadUserLearningActivityAsset.aspx?UserLearningActivityID=r%2bunNzf%2b8L0u1IXOVro6BQ%3d%3d&phase=d8Qn8XiodgLy8iy5x2Fzuw%3d%3d'
+#     url = 'https://learn.aace.com/Users/LoadUserLearningActivityAsset.aspx?UserLearningActivityID=r%2bunNzf%2b8L0u1IXOVro6BQ%3d%3d&phase=d8Qn8XiodgLy8iy5x2Fzuw%3d%3d'
+
+#     browser = p.firefox.launch(headless=False)
+#     context = browser.new_context(storage_state="state.json")
+#     page = context.new_page()
+
+#     page.goto(url, timeout=10000)
+    
+#     time.sleep(7)
+
+#     process_assets(page, context, mainfolder='videos', folder='')
+
+
+with sync_playwright() as p:
 
     browser = p.firefox.launch(headless=False)
     context = browser.new_context(storage_state="state.json")
     page = context.new_page()
 
-    page.goto(url, timeout=10000)
-    
-    time.sleep(7)
+    with open("names.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
 
-    process_assets(page, context, mainfolder='videos', folder='')
+    for item in data:
+        folder = item["folder"]
+        url = item["url"]
 
+        try:
+            print("Opening:", folder)
 
+            page.goto(url, timeout=10000)
 
+            time.sleep(7)
+
+            process_assets(
+                page,
+                context,
+                mainfolder="videos",
+                folder=folder
+            )
+            time.sleep(3)
+
+        except Exception as e:
+            print(f"Error: {folder} - {e}")
+            continue
+
+    browser.close()
 
     #if i manually navigate to other page after page loads,which page process videos do, difined above page or navigated new page?
 
