@@ -166,8 +166,9 @@ def handle_request(response, context, mainfolder='demo1', folder='demo2', name='
                 time.sleep(3)
 
                 # if result.ok:
-                path = os.path.join("videos", mainfolder, folder, f"{name}.mp4")
-                download_mp4(response.url, path)
+                path = os.path.join("Courses", mainfolder, folder, f"{name}.mp4")
+
+                # download_mp4(response.url, path)
 
                 add_name(name_og)
                 time.sleep(2)
@@ -198,7 +199,7 @@ def save_name(name):
 
 def name_exists(name):
     try:
-        with open("names.json", "r", encoding="utf-8") as f:
+        with open("name.json", "r", encoding="utf-8") as f:
             names = json.load(f)
         return name in names
     except (FileNotFoundError, json.JSONDecodeError):
@@ -330,9 +331,11 @@ def process_assets(page, context, mainfolder='demo1', folder='demo2'):
             name = asset.locator(
                 "span[id*='lblAssetWithFileActivityName']"
             ).inner_text().strip()
+            print(name)
 
             if name_exists(name):
                 print("Already exists, skipping:", name)
+                
                 continue
 
             print(f"Opening: {name}")
@@ -350,7 +353,7 @@ def process_assets(page, context, mainfolder='demo1', folder='demo2'):
 
             asset.locator("a.customActivityAssetLinkButton").click()
 
-            time.sleep(7)
+            time.sleep(10)
 
             close = page.locator(
                 "a.fancybox-close[title='Close']:visible"
@@ -359,10 +362,11 @@ def process_assets(page, context, mainfolder='demo1', folder='demo2'):
             if close.count():
                 close.last.click()
 
-            time.sleep(1)
+            time.sleep(2)
 
             page.remove_listener("response", handle)
-            time.sleep(10000)
+
+            time.sleep(100)
 
         except Exception as e:
             print(f"Asset {i + 1} error:", e)
@@ -376,6 +380,8 @@ def process_assets(page, context, mainfolder='demo1', folder='demo2'):
             continue
 
 
+
+
 with sync_playwright() as p:
 
     url = 'https://learn.aace.com/Users/LoadUserLearningActivityAsset.aspx?UserLearningActivityID=r%2bunNzf%2b8L0u1IXOVro6BQ%3d%3d&phase=d8Qn8XiodgLy8iy5x2Fzuw%3d%3d'
@@ -386,11 +392,12 @@ with sync_playwright() as p:
 
     page.goto(url, timeout=10000)
     
-
     time.sleep(7)
 
+    process_assets(page, context, mainfolder='videos', folder='')
 
-    process_assets(page, context, mainfolder='demo1', folder='demo2')
+
+
 
     #if i manually navigate to other page after page loads,which page process videos do, difined above page or navigated new page?
 
