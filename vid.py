@@ -17,6 +17,19 @@ name = ""
 current_name = None
 
 
+def download_mp4(url, path):
+    with requests.get(url, stream=True, timeout=5000) as r:
+        r.raise_for_status()
+
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+
+        with open(path, "wb") as f:
+            for chunk in r.iter_content(chunk_size=1024 * 1024):
+                if chunk:
+                    f.write(chunk)
+
+    print("Saved2:", path)
+
 def add_name(name):
     file = "name.json"
 
@@ -125,7 +138,7 @@ def process_videos(page, context, mainfolder='demo1', folder='1ks', name='1as'):
             time.sleep(2)
 
             page.remove_listener("response", handle)
-            time.sleep(300)
+            time.sleep(30)
 
 
         except Exception as e:
@@ -156,21 +169,22 @@ def handle_request(response, context, mainfolder='demo1', folder='demo2', name='
 
                 time.sleep(3)
 
-                result = context.request.get(
-                    response.url,
-                    timeout=1000000
-                )
+                # result = context.request.get(
+                #     response.url,
+                #     timeout=1000000
+                # )
 
-                if result.ok:
-                    path = os.path.join("videos", mainfolder, folder, f"{name}.mp4")
-                    os.makedirs(os.path.dirname(path), exist_ok=True)
-                    add_name(name_og)
-                    time.sleep(2)
-                    with open(path, "wb") as f:
-                        f.write(result.body())
+                # if result.ok:
+                path = os.path.join("videos", mainfolder, folder, f"{name}.mp4")
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                add_name(name_og)
+                time.sleep(2)
 
-                    
-                    print("Saved:", path)
+                # download_mp4(response.url, path)
+
+                time.sleep(2)
+
+                print("Saved:", path)
 
     except Exception as e:
         print("MP4 save failed:", e)
@@ -293,8 +307,6 @@ def open_product_items(page, context):
 
     except Exception as e:
         print("Main Error:", e)
-
-
 
 
 

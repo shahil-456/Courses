@@ -13,6 +13,31 @@ main_folder = ""
 folder = ""
 name = ""
 
+
+
+
+
+def download_mp4(url, path):
+    with requests.get(url, stream=True, timeout=5000) as r:
+        r.raise_for_status()
+
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+
+        with open(path, "wb") as f:
+            for chunk in r.iter_content(chunk_size=1024 * 1024):
+                if chunk:
+                    f.write(chunk)
+
+    print("Saved2:", path)
+
+
+
+
+
+
+
+
+
 def process_videos(page, mainfolder='demo1', folder='1ks', name='1as'):
     page.on("response", lambda response: handle_request(
         response, mainfolder, folder, name
@@ -44,9 +69,10 @@ def handle_request(response, mainfolder='demo1', folder='demo2', name='test'):
         path = os.path.join(mainfolder, folder, f"{name}.mp4")
         os.makedirs(os.path.dirname(path), exist_ok=True)
 
-        with open(path, "wb") as f:
-            f.write(response.body())
-            time.sleep(1)
+        download_mp4(response.url, path):
+        # with open(path, "wb") as f:
+        #     f.write(response.body())
+        #     time.sleep(1)
 
 
 def clean_name(name):

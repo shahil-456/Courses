@@ -1,13 +1,17 @@
 from playwright.sync_api import sync_playwright
 
 with sync_playwright() as p:
-    browser = p.firefox.launch(headless=False)
+    browser = p.chromium.launch(headless=False)
 
     context = browser.new_context()
 
     page = context.new_page()
 
-    page.goto("https://www.sccm.org/mysccm/my-learning")
+    page.goto(
+        "https://learn.aslms.org/products/cme-2026-aslms-45th-annual-conference-recordings#tab-product_tab_overview",
+        timeout=30000,
+        wait_until="load"
+    )
 
     input("Login manually, then press Enter here...")
 

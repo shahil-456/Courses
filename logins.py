@@ -1,7 +1,8 @@
 from playwright.sync_api import sync_playwright
 
 with sync_playwright() as p:
-    browser = p.firefox.launch(headless=False)
+    browser = p.chromium.launch(headless=False)
+            # browser = p.chromium.launch(headless=False)
 
     context = browser.new_context(
         storage_state="state.json"
@@ -9,7 +10,7 @@ with sync_playwright() as p:
 
     page = context.new_page()
 
-    page.goto("https://learn.aslms.org/products/cme-2026-aslms-45th-annual-conference-recordings#tab-product_tab_overview")
+    page.goto("https://learn.aslms.org/", timeout=15000)
 
     input("Login manually, then press Enter here...")
 
