@@ -190,7 +190,7 @@ def process_videos(page, context, mainfolder='demo1', folder='1ks', name='1as'):
             time.sleep(2)
 
             page.remove_listener("response", handle)
-            time.sleep(20)
+            time.sleep(150)
 
 
         except Exception as e:
