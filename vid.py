@@ -50,14 +50,67 @@ def add_name(name):
 
 # page.on("response", on_response)
 
+
+
+
+def process_files(page, main_folder, folder):
+    try:
+        files = page.locator("#assets .asset[data-type='file']")
+        total = files.count()
+
+        if os.path.exists("pdfs.json"):
+            with open("pdfs.json", "r", encoding="utf-8") as f:
+                pdfs = json.load(f)
+        else:
+            pdfs = []
+
+        for i in range(total):
+            try:
+                file = files.nth(i)
+
+                name = file.locator(".assetTitle").inner_text().strip()
+                link = file.locator("a.btn-download").get_attribute("href")
+
+                if name and link:
+                    print(name)
+                    print(link)
+
+                    pdfs.append({
+                        "name": name,
+                        "mainfolder": main_folder,
+                        "folder": folder,
+                        "url": link
+                    })
+
+                    with open("pdfs.json", "w", encoding="utf-8") as f:
+                        json.dump(pdfs, f, indent=2, ensure_ascii=False)
+
+            except Exception as e:
+                print(f"File {i + 1} error: {e}")
+                continue
+
+    except Exception as e:
+        print(f"Process files error: {e}")
+
+
+
+
+
+
+
 def process_videos(page, context, mainfolder='demo1', folder='1ks', name='1as'):
 
     try:
-        page.locator("a.show_as_default[href^='#product_tab_contents']").click()
+        page.locator("a.show_as_default[href^='#product_tab_contents']:visible").first.click()
     except Exception as e:
         print("Contents click error:", e)
 
     time.sleep(3)
+
+    mainfolder = clean_name(mainfolder)
+    folder = clean_name(folder)
+    
+    process_files(page,mainfolder,folder)
 
     try:
         videos = page.locator("#assets .asset[data-type='video']")
@@ -77,6 +130,7 @@ def process_videos(page, context, mainfolder='demo1', folder='1ks', name='1as'):
             title = video.locator(".title")
 
             name = video.locator(".assetTitle").inner_text().strip()
+            name = clean_name(name)
 
             print(name)
 
@@ -87,12 +141,6 @@ def process_videos(page, context, mainfolder='demo1', folder='1ks', name='1as'):
                     names = json.load(f)
             else:
                 names = []
-
-            # if name not in names:
-            #     names.append(name)
-
-            #     with open(file, "w", encoding="utf-8") as f:
-            #         json.dump(names, f, indent=4, ensure_ascii=False)
 
             if name in names:
                 continue
@@ -116,7 +164,7 @@ def process_videos(page, context, mainfolder='demo1', folder='1ks', name='1as'):
             title.evaluate("(el) => el.click()")
             time.sleep(2)
 
-            button = video.locator("a.btn-showvideo")
+            button = video.locator("a.btn-showvideo:visible").first
 
             if not button.is_visible():
                 print(f"Video {i + 1}: View Video not visible")
@@ -138,7 +186,7 @@ def process_videos(page, context, mainfolder='demo1', folder='1ks', name='1as'):
             time.sleep(2)
 
             page.remove_listener("response", handle)
-            time.sleep(30)
+            time.sleep(150)
 
 
         except Exception as e:
@@ -310,57 +358,82 @@ def open_product_items(page, context):
 
 
 
-
-with sync_playwright() as p:
-
-    url = 'https://learn.aslms.org/products/ce-2026-aslms-45th-annual-conference-recordings-nursing-allied-health?packages%5B%5D=255282&in_package=255282&sort_by=package_order&ref=package&ref_id=255282'
-
-    browser = p.firefox.launch(headless=False)
-    context = browser.new_context(storage_state="state.json")
-    page = context.new_page()
-
-    # page.goto(url, timeout=10000)
-
-    time.sleep(3)
-
-    #if i manually navigate to other page after page loads,which page process videos do, difined above page or navigated new page?
-
-    # process_videos(page, context,mainfolder='demo1', folder='1ks', name='test')
+BASE_URL = "https://learn.aslms.org"
 
 
-    with open("names.json", "r", encoding="utf-8") as f:
-        data = json.load(f)
+for attempt in range(7):
+    print(f"\n========== RUN {attempt + 1}/10 ==========\n")
 
-    for mainfolder, folders in data.items():
-        for folder, folder_data in folders.items():
-            time.sleep(5)
-            url = folder_data["url"]
+    try:
+        with sync_playwright() as p:
 
-            print(f"Opening: {mainfolder} / {folder}")
-            print(url)
+            browser = p.firefox.launch(headless=False)
+            context = browser.new_context(storage_state="state.json")
+            page = context.new_page()
 
-            try:
-                page.goto(url, timeout=10000)
+            with open("links.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
 
-                process_videos(
-                    page,
-                    context,
-                    mainfolder=mainfolder,
-                    folder=folder,
-                    name="test"
-                )
+            for mainfolder, main_data in data.items():
 
-            except Exception as e:
-                print(f"Error: {mainfolder} / {folder}:", e)
-                continue
+                try:
+                    subfolders = main_data.get("subfolders", {})
 
+                    if subfolders:
+                        for folder, folder_data in subfolders.items():
 
+                            url = BASE_URL + folder_data["url"]
 
-    # page = open_products(page, context)
+                            print(f"Opening: {mainfolder} / {folder}")
+                            print(url)
 
-    page.wait_for_timeout(999999999)
+                            try:
+                                page.goto(url, timeout=10000)
+                                time.sleep(10)
 
+                                process_videos(
+                                    page,
+                                    context,
+                                    mainfolder=mainfolder,
+                                    folder=folder,
+                                    name="test"
+                                )
 
+                            except Exception as e:
+                                print(f"Error: {mainfolder} / {folder}: {e}")
+                                continue
 
+                    else:
+                        url = BASE_URL + main_data["url"]
 
+                        print(f"Opening: {mainfolder}")
+                        print(url)
+
+                        try:
+                            page.goto(url, timeout=10000)
+                            time.sleep(10)
+
+                            process_videos(
+                                page,
+                                context,
+                                mainfolder=mainfolder,
+                                folder=mainfolder,
+                                name="test"
+                            )
+
+                        except Exception as e:
+                            print(f"Error: {mainfolder}: {e}")
+                            continue
+
+                except Exception as e:
+                    print(f"Error: {mainfolder}: {e}")
+                    continue
+
+            browser.close()
+
+    except Exception as e:
+        print(f"Browser error: {e}")
+        continue
+
+print("\nAll 10 runs completed.")
 

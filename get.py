@@ -60,9 +60,39 @@ with sync_playwright() as p:
                     print(name)
                     print(link)
 
+
+            pagination = page.locator(".pagination li")
+
+            if pagination.count() > 2:
+                pagination.nth(2).locator("a").click()
+
+                page.wait_for_load_state("domcontentloaded")
+                time.sleep(5)
+
+                assets = page.locator("a.productTitle")
+                total = assets.count()
+
+                for i in range(total):
+                    asset = assets.nth(i)
+
+                    name = asset.locator("h1").inner_text().strip()
+                    link = asset.get_attribute("href")
+
+                    if name and link:
+                        main_data["subfolders"][name] = {
+                            "url": link
+                        }
+
+                        print(name)
+                        print(link)
+
+
             with open("links.json", "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
-                time.sleep(5)
+
+            time.sleep(5)
+
+                
 
         except Exception as e:
             print(f"Error: {main_folder} - {e}")
@@ -71,7 +101,7 @@ with sync_playwright() as p:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
             continue
-        time.sleep(199)    
+        time.sleep(10)    
     browser.close()
 
 print("\nDone.")
