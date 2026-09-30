@@ -52,11 +52,15 @@ def add_name(name):
 
 
 
-
 def process_files(page, main_folder, folder):
     try:
-        files = page.locator("#assets .asset[data-type='file']")
+        files = page.locator("div.asset[data-type='file']")
         total = files.count()
+
+        print("Total files:", total)
+
+        if total == 0:
+            return
 
         if os.path.exists("pdfs.json"):
             with open("pdfs.json", "r", encoding="utf-8") as f:
@@ -82,16 +86,15 @@ def process_files(page, main_folder, folder):
                         "url": link
                     })
 
-                    with open("pdfs.json", "w", encoding="utf-8") as f:
-                        json.dump(pdfs, f, indent=2, ensure_ascii=False)
-
             except Exception as e:
                 print(f"File {i + 1} error: {e}")
                 continue
 
+        with open("pdfs.json", "w", encoding="utf-8") as f:
+            json.dump(pdfs, f, indent=2, ensure_ascii=False)
+
     except Exception as e:
         print(f"Process files error: {e}")
-
 
 
 
@@ -109,7 +112,7 @@ def process_videos(page, context, mainfolder='demo1', folder='1ks', name='1as'):
 
     mainfolder = clean_name(mainfolder)
     folder = clean_name(folder)
-    
+
     process_files(page,mainfolder,folder)
 
     try:
@@ -186,7 +189,7 @@ def process_videos(page, context, mainfolder='demo1', folder='1ks', name='1as'):
             time.sleep(2)
 
             page.remove_listener("response", handle)
-            time.sleep(150)
+            time.sleep(20)
 
 
         except Exception as e:
@@ -228,7 +231,7 @@ def handle_request(response, context, mainfolder='demo1', folder='demo2', name='
                 add_name(name_og)
                 time.sleep(2)
 
-                # download_mp4(response.url, path)
+                download_mp4(response.url, path)
 
                 time.sleep(2)
 
