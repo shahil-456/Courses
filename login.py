@@ -13,7 +13,7 @@ with sync_playwright() as p:
         wait_until="load"
     )
 
-    input("Login manually, then press Enter here...")
+    input("Login manually, then press Enter Here...")
 
     context.storage_state(path="state.json")
 
