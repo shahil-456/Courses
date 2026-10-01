@@ -1,9 +1,6 @@
 from playwright.sync_api import sync_playwright
-import subprocess
-import time
 
 with sync_playwright() as p:
-
     browser = p.chromium.launch(headless=False)
 
     context = browser.new_context(
@@ -13,7 +10,7 @@ with sync_playwright() as p:
     page = context.new_page()
 
     page.goto(
-        "https://www.accp.com/signin/index.aspx?r=1",
+        "https://learn.aslms.org/products/cme-2026-aslms-45th-annual-conference-recordings#tab-product_tab_overview",
         wait_until="load"
     )
 
@@ -24,8 +21,3 @@ with sync_playwright() as p:
     print("state.json saved")
 
     browser.close()
-    time.sleep(1)
-
-time.sleep(3)
-
-process = subprocess.Popen(["python", "accp.py"])

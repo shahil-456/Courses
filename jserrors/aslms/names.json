@@ -1,0 +1,27 @@
+{
+    "main_folder_1": {
+        "folder_1": {
+            "url": "https://learn.aslms.org/products/ce-2026-aslms-45th-annual-conference-recordings-nursing-allied-health?packages%5B%5D=255282&in_package=255282&sort_by=package_order&ref=package&ref_id=255282",
+            "names": [
+                "name_1"
+                
+            ]
+        },
+        "folder_2": {
+            "url": "https://example.com/folder2",
+            "names": [
+                "name_4",
+                "name_5"
+            ]
+        }
+    },
+    "main_folder_2": {
+        "folder_1": {
+            "url": "https://example.com/folder3",
+            "names": [
+                "name_6",
+                "name_7"
+            ]
+        }
+    }
+}
