@@ -219,7 +219,7 @@ with sync_playwright() as p:
                     check_url = (parsed.path + " " + query_file).lower()
 
                     if not any(ext in check_url for ext in [
-                        ".pdf", ".mp3", ".mp4"
+                        ".pdf"
                     ]):
                         continue
 
@@ -283,7 +283,7 @@ with sync_playwright() as p:
             continue
 
     time.sleep(100)        
-    save_qbank_html(page)
+    # save_qbank_html(page)
 
     time.sleep(100)
     browser.close()

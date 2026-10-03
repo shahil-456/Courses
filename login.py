@@ -13,7 +13,7 @@ with sync_playwright() as p:
     page = context.new_page()
 
     page.goto(
-        "https://www.accp.com/signin/index.aspx?r=1",
+        "https://www.accp.com/store/product.aspx?pc=CCPC26G",
         wait_until="load"
     )
 
@@ -24,8 +24,8 @@ with sync_playwright() as p:
     print("state.json saved")
 
     browser.close()
-    time.sleep(1)
+    time.sleep(10)
 
 time.sleep(3)
 
-process = subprocess.Popen(["python", "accp.py"])
+process = subprocess.Popen(["python", "accppdf.py"])
