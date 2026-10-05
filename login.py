@@ -4,16 +4,14 @@ import time
 
 with sync_playwright() as p:
 
-    browser = p.chromium.launch(headless=False)
+    browser = p.firefox.launch(headless=False)
 
-    context = browser.new_context(
-        ignore_https_errors=True
-    )
+    context = browser.new_context()
 
     page = context.new_page()
 
     page.goto(
-        "https://www.accp.com/store/product.aspx?pc=CCPC26G",
+        "https://www.gcus.com",
         wait_until="load"
     )
 
