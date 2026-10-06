@@ -11,7 +11,7 @@ with sync_playwright() as p:
     page = context.new_page()
 
     page.goto(
-        "https://www.gcus.com",
+        "https://www.gcus.com/account/myactivities",
         wait_until="load"
     )
 
@@ -26,4 +26,5 @@ with sync_playwright() as p:
 
 time.sleep(3)
 
-process = subprocess.Popen(["python", "accppdf.py"])
+
+process1 = subprocess.Popen(["python", "gsc.py"])

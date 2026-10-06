@@ -10,6 +10,7 @@ import asyncio
 import threading
 
 
+from pathlib import Path
 
 main_folder = ""
 folder = ""
@@ -365,81 +366,152 @@ def open_product_items(page, context):
 BASE_URL = "https://learn.aslms.org"
 
 
-for attempt in range(7):
-    print(f"\n========== RUN {attempt + 1}/10 ==========\n")
+# for attempt in range(7):
+#     print(f"\n========== RUN {attempt + 1}/10 ==========\n")
 
+#     try:
+#         with sync_playwright() as p:
+
+#             browser = p.firefox.launch(headless=False)
+#             context = browser.new_context(storage_state="state.json")
+#             page = context.new_page()
+
+#             with open("links.json", "r", encoding="utf-8") as f:
+#                 data = json.load(f)
+
+#             for mainfolder, main_data in data.items():
+
+#                 try:
+#                     subfolders = main_data.get("subfolders", {})
+
+#                     if subfolders:
+#                         for folder, folder_data in subfolders.items():
+
+#                             url = BASE_URL + folder_data["url"]
+
+#                             print(f"Opening: {mainfolder} / {folder}")
+#                             print(url)
+
+#                             try:
+#                                 page.goto(url, timeout=10000)
+#                                 time.sleep(10)
+
+#                                 process_videos(
+#                                     page,
+#                                     context,
+#                                     mainfolder=mainfolder,
+#                                     folder=folder,
+#                                     name="test"
+#                                 )
+
+#                             except Exception as e:
+#                                 print(f"Error: {mainfolder} / {folder}: {e}")
+#                                 continue
+
+#                     else:
+#                         url = BASE_URL + main_data["url"]
+
+#                         print(f"Opening: {mainfolder}")
+#                         print(url)
+
+#                         try:
+#                             page.goto(url, timeout=10000)
+#                             time.sleep(10)
+
+#                             process_videos(
+#                                 page,
+#                                 context,
+#                                 mainfolder=mainfolder,
+#                                 folder=mainfolder,
+#                                 name="test"
+#                             )
+
+#                         except Exception as e:
+#                             print(f"Error: {mainfolder}: {e}")
+#                             continue
+
+#                 except Exception as e:
+#                     print(f"Error: {mainfolder}: {e}")
+#                     continue
+#             time.sleep(5)    
+#             process = subprocess.Popen(["python", "pdf.py"])
+#             time.sleep(150)
+#             browser.close()
+
+#     except Exception as e:
+#         print(f"Browser error: {e}")
+#         continue
+
+# print("\nAll 10 runs completed.")
+
+
+
+
+
+URL = "https://www.gcus.com/"
+OUTPUT = "video.mp4"
+
+
+with sync_playwright() as p:
+    browser = p.firefox.launch(headless=False)
+
+    context = browser.new_context(
+        storage_state="state.json"
+    )
+
+    page = context.new_page()
+
+    video_urls = []
+
+    def handle_response(response):
+        url = response.url
+
+        if ".m3u8" in url:
+            print("M3U8:", url)
+            video_urls.append(url)
+
+    page.on("response", handle_response)
+
+    page.goto(URL, wait_until="domcontentloaded", timeout=30000)
+
+    page.wait_for_timeout(10000)
+
+    time.sleep(18888)
+
+    # Click JW Player video/play button
     try:
-        with sync_playwright() as p:
+        page.locator(".jw-icon-display").click(force=True)
+    except:
+        pass
 
-            browser = p.firefox.launch(headless=False)
-            context = browser.new_context(storage_state="state.json")
-            page = context.new_page()
+    page.wait_for_timeout(10000)
 
-            with open("links.json", "r", encoding="utf-8") as f:
-                data = json.load(f)
+    if not video_urls:
+        print("No M3U8 found")
+        browser.close()
+        raise SystemExit
 
-            for mainfolder, main_data in data.items():
+    m3u8_url = video_urls[0]
 
-                try:
-                    subfolders = main_data.get("subfolders", {})
+    # Get browser cookies
+    cookies = context.cookies()
+    cookie_header = "; ".join(
+        f"{c['name']}={c['value']}"
+        for c in cookies
+        if "gcus.com" in c["domain"]
+    )
 
-                    if subfolders:
-                        for folder, folder_data in subfolders.items():
+    browser.close()
 
-                            url = BASE_URL + folder_data["url"]
 
-                            print(f"Opening: {mainfolder} / {folder}")
-                            print(url)
-
-                            try:
-                                page.goto(url, timeout=10000)
-                                time.sleep(10)
-
-                                process_videos(
-                                    page,
-                                    context,
-                                    mainfolder=mainfolder,
-                                    folder=folder,
-                                    name="test"
-                                )
-
-                            except Exception as e:
-                                print(f"Error: {mainfolder} / {folder}: {e}")
-                                continue
-
-                    else:
-                        url = BASE_URL + main_data["url"]
-
-                        print(f"Opening: {mainfolder}")
-                        print(url)
-
-                        try:
-                            page.goto(url, timeout=10000)
-                            time.sleep(10)
-
-                            process_videos(
-                                page,
-                                context,
-                                mainfolder=mainfolder,
-                                folder=mainfolder,
-                                name="test"
-                            )
-
-                        except Exception as e:
-                            print(f"Error: {mainfolder}: {e}")
-                            continue
-
-                except Exception as e:
-                    print(f"Error: {mainfolder}: {e}")
-                    continue
-            time.sleep(5)    
-            process = subprocess.Popen(["python", "pdf.py"])
-            time.sleep(150)
-            browser.close()
-
-    except Exception as e:
-        print(f"Browser error: {e}")
-        continue
-
-print("\nAll 10 runs completed.")
-
+# Download using FFmpeg
+subprocess.run([
+    "ffmpeg",
+    "-headers",
+    f"Cookie: {cookie_header}\r\n",
+    "-i",
+    m3u8_url,
+    "-c",
+    "copy",
+    OUTPUT
+], check=True)
